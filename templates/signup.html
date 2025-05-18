@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - BATCH REPORT</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Departure Mono';
+            src: url('/static/fonts/DepartureMono-Regular.otf') format('opentype'),
+                 url('/static/fonts/DepartureMono-Regular.woff2') format('woff2'),
+                 url('/static/fonts/DepartureMono-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Departure Mono';
+            src: url('/static/fonts/DepartureMono-Bold.woff2') format('woff2'),
+                 url('/static/fonts/DepartureMono-Bold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+        }
+        
+        :root {
+            --accent-color: #0000ff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+        }
+
+        .navbar {
+            padding: 1.5rem 2rem;
+        }
+
+        .navbar-brand {
+            font-family: 'Departure Mono', monospace;
+            font-weight: normal;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .navbar-brand::after {
+            content: '|';
+            position: absolute;
+            right: -8px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #ff9900;
+            border-color: #ff9900;
+        }
+
+        .btn-outline-primary {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .signup-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 4rem 2rem;
+            background: #fff;
+        }
+
+        .signup-form {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8faff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.04);
+            border: 1px solid #e6f0fa;
+        }
+
+        .signup-title {
+            font-family: 'Departure Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            font-weight: normal;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #444;
+        }
+
+        .form-control {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e6f0fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 255, 0.1);
+        }
+
+        .form-text {
+            color: #666;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+
+        .login-link a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="/">BATCH REPORT</a>
+            <div class="ms-auto">
+                <a href="/pricing" class="btn btn-outline-primary me-2">Pricing</a>
+                <a href="/login" class="btn btn-outline-primary me-2">Log In</a>
+                <a href="/signup" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Section -->
+    <section class="signup-section">
+        <div class="container">
+            <div class="signup-form">
+                <h1 class="signup-title">Create Account</h1>
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+                <form action="/signup" method="POST">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullName" name="fullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="form-text">We'll never share your email with anyone else.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Must be at least 8 characters long.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                    </div>
+                </form>
+                <div class="login-link">
+                    Already have an account? <a href="/login">Log in</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
