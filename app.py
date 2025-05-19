@@ -1,11 +1,12 @@
-from flask import Flask, request, render_template, redirect, session, url_for, flash, render_template, send_file
+from flask import Flask, request, render_template, redirect, session, url_for, flash, render_template, send_file, jsonify
 from supabase_config import supabase
 from functools import wraps
 import os
 import secrets
 from werkzeug.utils import secure_filename
 import logging
-
+from utils.excel_parser import read_student_data_from_excel
+import openpyxl.utils.exceptions
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -183,6 +184,79 @@ def upload_page():
 def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
+
+class ExcelParsingError(Exception):
+    """Custom exception for Excel parsing errors"""
+    pass
+
+class FileNotFoundError(Exception):
+    """Custom exception for file not found errors"""
+    pass
+
+@app.route("/generate", methods=["POST"])
+@login_required
+def generate_report():
+    try:
+        # Get the latest uploaded file for the current user
+        result = supabase.table('uploads').select('*').eq('user_id', session['user']).order('created_at', desc=True).limit(1).execute()
+        
+        if not result.data:
+            return jsonify({
+                'success': False,
+                'message': 'No files found. Please upload an Excel file first.'
+            }), 400
+        
+        latest_upload = result.data[0]
+        excel_path = latest_upload['file_path']
+        
+        # Verify file exists
+        if not os.path.exists(excel_path):
+            return jsonify({
+                'success': False,
+                'message': 'Uploaded file not found. Please try uploading again.'
+            }), 404
+        
+        # Parse the Excel file
+        try:
+            student_list = read_student_data_from_excel(excel_path)
+            logger.debug(f"Successfully parsed {len(student_list)} students from {excel_path}")
+            
+            # TODO: Add your report generation logic here
+            # For now, we'll just return the number of students parsed
+            return jsonify({
+                'success': True,
+                'message': f'Successfully parsed {len(student_list)} students',
+                'student_count': len(student_list)
+            })
+            
+        except openpyxl.utils.exceptions.InvalidFileException:
+            logger.error("Invalid Excel file format")
+            return jsonify({
+                'success': False,
+                'message': 'Invalid Excel file format. Please ensure the file is a valid .xlsx file.'
+            }), 400
+            
+        except openpyxl.utils.exceptions.EmptyFileException:
+            logger.error("Empty Excel file")
+            return jsonify({
+                'success': False,
+                'message': 'The Excel file is empty. Please upload a file with data.'
+            }), 400
+            
+        except Exception as e:
+            logger.error(f"Error parsing Excel file: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': f'Failed to parse Excel file: {str(e)}'
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"Unexpected error in generate_report: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'An unexpected error occurred. Please try again.'
+        }), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

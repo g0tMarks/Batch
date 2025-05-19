@@ -112,25 +112,37 @@
             font-size: 1.1rem;
         }
 
-        .upload-button {
+        .action-button {
             padding: 1rem 2rem;
             font-size: 1.2rem;
             border-radius: 0.75rem;
-            transition: transform 0.2s;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            min-width: 220px;
+            height: 56px;
         }
 
-        .upload-button:hover {
+        .action-button:hover {
             transform: translateY(-2px);
         }
 
-        .upload-icon {
-            margin-right: 0.5rem;
+        .action-button:disabled {
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .action-button .button-icon {
+            margin-right: 0.75rem;
             width: 24px;
             height: 24px;
-            filter: brightness(0) invert(1); /* This makes the SVG white */
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+        }
+
+        .action-button .button-text {
+            white-space: nowrap;
         }
 
         .file-info {
@@ -191,6 +203,31 @@
             color: #666;
             margin-bottom: 1rem;
         }
+
+        .progress-container {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress {
+            height: 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .progress-bar {
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        .status-message {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -212,9 +249,9 @@
                     <div class="drag-drop-area">
                         <p class="drag-drop-text">Drag and drop your report here or</p>
                         <input type="file" id="fileInput" name="files" multiple class="d-none" accept=".xlsx">
-                        <button type="button" class="btn btn-primary upload-button" onclick="document.getElementById('fileInput').click()">
-                            <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="upload-icon">
-                            Choose File
+                        <button type="button" id="actionButton" class="btn btn-primary action-button" onclick="handleActionButtonClick()">
+                            <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="button-icon">
+                            <span class="button-text">Choose File</span>
                         </button>
                         <div class="file-info">Supported format: .xlsx</div>
                         <div class="selected-file" id="selectedFile">
@@ -229,10 +266,13 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-lg upload-button">
-                        <img src="{{ url_for('static', filename='icons/cloud-arrow-up.svg') }}" alt="Upload" class="upload-icon">
-                        Upload
-                    </button>
+                    <!-- Progress Indicator -->
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="status-message" id="statusMessage">Processing...</div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -241,24 +281,157 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Handle drag and drop functionality
-        const dragDropArea = document.querySelector('.drag-drop-area');
+        const actionButton = document.getElementById('actionButton');
         const fileInput = document.getElementById('fileInput');
         const selectedFile = document.getElementById('selectedFile');
         const selectedFileName = document.getElementById('selectedFileName');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = progressContainer.querySelector('.progress-bar');
+        const statusMessage = document.getElementById('statusMessage');
+
+        let currentState = 'choose'; // 'choose', 'upload', 'generate'
+
+        function updateButton(state) {
+            currentState = state;
+            switch(state) {
+                case 'choose':
+                    actionButton.innerHTML = `
+                        <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="button-icon">
+                        <span class="button-text">Choose File</span>
+                    `;
+                    actionButton.onclick = handleActionButtonClick;
+                    actionButton.type = 'button';
+                    break;
+                case 'upload':
+                    actionButton.innerHTML = `
+                        <img src="{{ url_for('static', filename='icons/cloud-arrow-up.svg') }}" alt="Upload" class="button-icon">
+                        <span class="button-text">Upload</span>
+                    `;
+                    actionButton.onclick = handleUpload;
+                    actionButton.type = 'button';
+                    break;
+                case 'generate':
+                    actionButton.innerHTML = `
+                        <img src="{{ url_for('static', filename='icons/magic-wand.svg') }}" alt="Generate" class="button-icon">
+                        <span class="button-text">Generate Report</span>
+                    `;
+                    actionButton.onclick = handleGenerate;
+                    actionButton.type = 'button';
+                    break;
+            }
+        }
+
+        function handleActionButtonClick() {
+            fileInput.click();
+        }
 
         function updateSelectedFile(file) {
             if (file) {
                 selectedFileName.textContent = file.name;
                 selectedFile.classList.add('show');
+                updateButton('upload');
             } else {
                 selectedFile.classList.remove('show');
+                updateButton('choose');
             }
+        }
+
+        function handleUpload() {
+            const formData = new FormData();
+            formData.append('files', fileInput.files[0]);
+
+            // Show loading state
+            actionButton.disabled = true;
+            actionButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Uploading...
+            `;
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Show success message
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'alert alert-success mt-3';
+                    successMessage.textContent = 'File uploaded successfully!';
+                    actionButton.parentNode.insertBefore(successMessage, actionButton);
+                    
+                    // Remove success message after 3 seconds
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 3000);
+
+                    // Update button to generate state
+                    updateButton('generate');
+                    
+                    // Clear the file input and selected file display
+                    fileInput.value = '';
+                    selectedFile.classList.remove('show');
+                }
+                actionButton.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                actionButton.disabled = false;
+                updateButton('upload');
+                
+                // Show error message
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'alert alert-danger mt-3';
+                errorMessage.textContent = 'Error uploading file. Please try again.';
+                actionButton.parentNode.insertBefore(errorMessage, actionButton);
+                
+                setTimeout(() => {
+                    errorMessage.remove();
+                }, 3000);
+            });
+        }
+
+        function handleGenerate() {
+            progressContainer.classList.add('show');
+            progressBar.style.width = '0%';
+            statusMessage.textContent = 'Starting report generation...';
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                if (progress <= 90) {
+                    progressBar.style.width = progress + '%';
+                    statusMessage.textContent = 'Processing... ' + progress + '%';
+                }
+            }, 500);
+
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                statusMessage.textContent = data.message || 'Report generated successfully!';
+                
+                setTimeout(() => {
+                    progressContainer.classList.remove('show');
+                }, 3000);
+            })
+            .catch(error => {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                progressBar.classList.add('bg-danger');
+                statusMessage.textContent = 'Error: ' + error.message;
+            });
         }
 
         function removeFile() {
             fileInput.value = ''; // Clear the file input
             selectedFile.classList.remove('show');
+            updateButton('choose'); // Reset button to choose state
         }
 
         // Handle file input change
@@ -266,6 +439,9 @@
             const file = e.target.files[0];
             updateSelectedFile(file);
         });
+
+        // Handle drag and drop
+        const dragDropArea = document.querySelector('.drag-drop-area');
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dragDropArea.addEventListener(eventName, preventDefaults, false);
@@ -300,6 +476,9 @@
             fileInput.files = files;
             updateSelectedFile(files[0]);
         }
+
+        // Initialize button state
+        updateButton('choose');
     </script>
 </body>
 </html> 
