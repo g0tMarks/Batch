@@ -139,6 +139,42 @@
             font-size: 0.9rem;
         }
 
+        .selected-file {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: #fff;
+            border: 1px solid #e6f0fa;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .selected-file.show {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .selected-file-name {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .remove-file {
+            color: #dc3545;
+            background: none;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .remove-file:hover {
+            color: #bb2d3b;
+        }
+
         .drag-drop-area {
             border: 2px dashed #e6f0fa;
             border-radius: 1rem;
@@ -175,12 +211,22 @@
                 <form action="/upload" method="POST" enctype="multipart/form-data">
                     <div class="drag-drop-area">
                         <p class="drag-drop-text">Drag and drop your report here or</p>
-                        <input type="file" id="fileInput" name="files" multiple class="d-none">
+                        <input type="file" id="fileInput" name="files" multiple class="d-none" accept=".xlsx">
                         <button type="button" class="btn btn-primary upload-button" onclick="document.getElementById('fileInput').click()">
                             <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="upload-icon">
                             Choose File
                         </button>
                         <div class="file-info">Supported format: .xlsx</div>
+                        <div class="selected-file" id="selectedFile">
+                            <span>Selected file: <span class="selected-file-name" id="selectedFileName"></span></span>
+                            <button type="button" class="remove-file" onclick="removeFile()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                                Remove
+                            </button>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-lg upload-button">
@@ -198,6 +244,28 @@
         // Handle drag and drop functionality
         const dragDropArea = document.querySelector('.drag-drop-area');
         const fileInput = document.getElementById('fileInput');
+        const selectedFile = document.getElementById('selectedFile');
+        const selectedFileName = document.getElementById('selectedFileName');
+
+        function updateSelectedFile(file) {
+            if (file) {
+                selectedFileName.textContent = file.name;
+                selectedFile.classList.add('show');
+            } else {
+                selectedFile.classList.remove('show');
+            }
+        }
+
+        function removeFile() {
+            fileInput.value = ''; // Clear the file input
+            selectedFile.classList.remove('show');
+        }
+
+        // Handle file input change
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            updateSelectedFile(file);
+        });
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dragDropArea.addEventListener(eventName, preventDefaults, false);
@@ -230,6 +298,7 @@
             const dt = e.dataTransfer;
             const files = dt.files;
             fileInput.files = files;
+            updateSelectedFile(files[0]);
         }
     </script>
 </body>
