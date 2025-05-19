@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload - BATCH REPORT</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Departure Mono';
+            src: url('/static/fonts/DepartureMono-Regular.otf') format('opentype'),
+                 url('/static/fonts/DepartureMono-Regular.woff2') format('woff2'),
+                 url('/static/fonts/DepartureMono-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Departure Mono';
+            src: url('/static/fonts/DepartureMono-Bold.woff2') format('woff2'),
+                 url('/static/fonts/DepartureMono-Bold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+        }
+        
+        :root {
+            --accent-color: #0000ff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+        }
+
+        .navbar {
+            padding: 1.5rem 2rem;
+        }
+
+        .navbar-brand {
+            font-family: 'Departure Mono', monospace;
+            font-weight: normal;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .navbar-brand::after {
+            content: '|';
+            position: absolute;
+            right: -8px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #ff9900;
+            border-color: #ff9900;
+        }
+
+        .btn-outline-primary {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .upload-section {
+            min-height: calc(100vh - 80px); /* Subtract navbar height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: #fff;
+        }
+
+        .upload-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 2rem;
+            background: #f8faff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.04);
+            border: 1px solid #e6f0fa;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .upload-title {
+            font-family: 'Departure Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            font-weight: normal;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .upload-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 0.75rem;
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            margin-right: 0.5rem;
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1); /* This makes the SVG white */
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .drag-drop-area {
+            border: 2px dashed #e6f0fa;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1rem 0;
+            transition: border-color 0.2s;
+        }
+
+        .drag-drop-area:hover {
+            border-color: var(--accent-color);
+        }
+
+        .drag-drop-text {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="/">BATCH REPORT.</a>
+        </div>
+    </nav>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+        <div class="container">
+            <div class="upload-container">
+                <h1 class="upload-title">Upload Your Files</h1>
+                <p class="upload-subtitle">Upload your class list and sample reports to get started</p>
+                
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <div class="drag-drop-area">
+                        <p class="drag-drop-text">Drag and drop your report here or</p>
+                        <input type="file" id="fileInput" name="files" multiple class="d-none">
+                        <button type="button" class="btn btn-primary upload-button" onclick="document.getElementById('fileInput').click()">
+                            <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="upload-icon">
+                            Choose File
+                        </button>
+                        <div class="file-info">Supported format: .xlsx</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg upload-button">
+                        <img src="{{ url_for('static', filename='icons/cloud-arrow-up.svg') }}" alt="Upload" class="upload-icon">
+                        Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle drag and drop functionality
+        const dragDropArea = document.querySelector('.drag-drop-area');
+        const fileInput = document.getElementById('fileInput');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dragDropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dragDropArea.classList.add('border-primary');
+        }
+
+        function unhighlight(e) {
+            dragDropArea.classList.remove('border-primary');
+        }
+
+        dragDropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+        }
+    </script>
+</body>
+</html> 
