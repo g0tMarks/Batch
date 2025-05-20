@@ -3,324 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload - BATCH REPORT</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>BATCH REPORT</title>
     <style>
         @font-face {
-            font-family: 'Departure Mono';
-            src: url('/static/fonts/DepartureMono-Regular.otf') format('opentype'),
-                 url('/static/fonts/DepartureMono-Regular.woff2') format('woff2'),
-                 url('/static/fonts/DepartureMono-Regular.woff') format('woff');
+            font-family: 'Test Soehne Breit Fett';
+            src: url('/static/fonts/test-soehne-breit-fett.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-fett.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Test Soehne Breit Buch';
+            src: url('/static/fonts/test-soehne-breit-buch.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-buch.woff') format('woff');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
         }
-
         @font-face {
-            font-family: 'Departure Mono';
-            src: url('/static/fonts/DepartureMono-Bold.woff2') format('woff2'),
-                 url('/static/fonts/DepartureMono-Bold.woff') format('woff');
-            font-weight: bold;
+            font-family: 'Test Soehne Breit Leicht';
+            src: url('/static/fonts/test-soehne-breit-leicht.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-leicht.woff') format('woff');
+            font-weight: normal;
             font-style: normal;
+            font-display: swap;
         }
-        
-        :root {
-            --accent-color: #0000ff;
+        html, body {
+            height: 100%;
         }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #ffffff;
+            min-height: 100vh;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #faf7ef;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
         .navbar {
-            padding: 1.5rem 2rem;
-        }
-
-        .navbar-brand {
-            font-family: 'Departure Mono', monospace;
-            font-weight: normal;
-            font-size: 1.5rem;
-            position: relative;
-        }
-
-        .navbar-brand::after {
-            content: '|';
             position: absolute;
-            right: -8px;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            from, to { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .btn-primary:hover {
-            background-color: #ff9900;
-            border-color: #ff9900;
-        }
-
-        .btn-outline-primary {
-            color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .upload-section {
-            min-height: calc(100vh - 80px); /* Subtract navbar height */
+            top: 2rem;
+            left: 0;
+            width: 100vw;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 2rem;
-            background: #fff;
+            z-index: 10;
         }
-
-        .upload-container {
-            max-width: 600px;
-            width: 100%;
-            padding: 2rem;
-            background: #f8faff;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.04);
-            border: 1px solid #e6f0fa;
-            text-align: center;
-            margin: 0 auto;
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
         }
-
-        .upload-title {
-            font-family: 'Departure Mono', monospace;
-            font-size: 2.5rem;
-            color: var(--accent-color);
+        .nav-btn {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
             font-weight: normal;
-            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            outline: none;
+            border-radius: 2rem;
+            padding: 0.7rem 2.2rem;
+            cursor: pointer;
+            background: #f3f1eb;
+            color: #000;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: none;
+            text-decoration: none;
         }
-
-        .upload-subtitle {
-            color: #666;
-            margin-bottom: 2rem;
+        .nav-btn.active, .nav-btn:focus {
+            background: #000;
+            color: #fff;
+        }
+        .nav-btn:hover {
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+        }
+        .header h1 {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 2rem;
+            font-weight: normal;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        .header p {
+            color: var(--accent-color);
             font-size: 1.1rem;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
-        .action-button {
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 220px;
-            height: 56px;
+        .button, .download-button {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: none;
+            border: 1px solid #000;
+            color: #000;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-
-        .action-button:hover {
-            transform: translateY(-2px);
+        .button:hover, .download-button:hover {
+            background: #000;
+            color: #fff;
         }
-
-        .action-button:disabled {
-            opacity: 0.7;
-            transform: none;
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
-
-        .action-button .button-icon {
-            margin-right: 0.75rem;
-            width: 24px;
-            height: 24px;
-            filter: brightness(0) invert(1);
-            flex-shrink: 0;
-        }
-
-        .action-button .button-text {
-            white-space: nowrap;
-        }
-
-        .file-info {
-            margin-top: 1rem;
-            color: #666;
+        .file-info, .status-message {
+            color: var(--accent-color);
             font-size: 0.9rem;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
         .selected-file {
-            margin-top: 1rem;
-            padding: 0.5rem;
-            background: #fff;
-            border: 1px solid #e6f0fa;
-            border-radius: 0.5rem;
             display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--accent-color);
         }
-
         .selected-file.show {
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
         }
-
         .selected-file-name {
-            color: var(--accent-color);
-            font-weight: 500;
+            color: #000;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
         .remove-file {
-            color: #dc3545;
             background: none;
             border: none;
-            padding: 0.25rem 0.5rem;
+            color: var(--accent-color);
             cursor: pointer;
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
         .remove-file:hover {
-            color: #bb2d3b;
+            color: #000;
         }
-
-        .drag-drop-area {
-            border: 2px dashed #e6f0fa;
-            border-radius: 1rem;
-            padding: 2rem;
-            margin: 1rem 0;
-            transition: border-color 0.2s;
-        }
-
-        .drag-drop-area:hover {
-            border-color: var(--accent-color);
-        }
-
-        .drag-drop-text {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-
-        .progress-container {
+        input[type="file"] {
             display: none;
-            margin-top: 1rem;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
-        .progress-container.show {
-            display: block;
+        .upload-container, .drag-drop-area, .progress-container, .download-container {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
-        .progress {
-            height: 0.5rem;
-            border-radius: 0.25rem;
+        .alert, .alert-success, .alert-danger {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
-        .progress-bar {
-            background-color: var(--accent-color);
-            transition: width 0.3s ease;
+        .upload-card {
+            max-width: 500px;
+            margin: 8rem auto 0 auto;
+            background: #fff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+            border: 1px solid #ececec;
+            text-align: center;
         }
-
-        .status-message {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #666;
+        @media (max-width: 600px) {
+            .upload-card {
+                margin-top: 5rem;
+                padding: 1.5rem 0.5rem 1.5rem 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand" href="/">BATCH REPORT.</a>
+    <nav class="navbar">
+        <div class="nav-buttons">
+            <a href="{{ url_for('index') }}" class="nav-btn">HOME</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
         </div>
     </nav>
-
-    <!-- Upload Section -->
-    <section class="upload-section">
-        <div class="container">
-            <div class="upload-container">
-                <h1 class="upload-title">Upload File</h1>
-                <p class="upload-subtitle">Upload your class list and sample reports to get started</p>
-                
-                <form action="/upload" method="POST" enctype="multipart/form-data">
-                    <div class="drag-drop-area">
-                        <p class="drag-drop-text">Drag and drop your report here or</p>
-                        <input type="file" id="fileInput" name="files" multiple class="d-none" accept=".xlsx">
-                        <button type="button" id="actionButton" class="btn btn-primary action-button" onclick="handleActionButtonClick()">
-                            <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="button-icon">
-                            <span class="button-text">Choose File</span>
-                        </button>
-                        <div class="file-info">Supported format: .xlsx</div>
-                        <div class="selected-file" id="selectedFile">
-                            <span>Selected file: <span class="selected-file-name" id="selectedFileName"></span></span>
-                            <button type="button" class="remove-file" onclick="removeFile()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                                </svg>
-                                Remove
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Progress Indicator -->
-                    <div class="progress-container" id="progressContainer">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-                        </div>
-                        <div class="status-message" id="statusMessage">Processing...</div>
-                    </div>
-
-                    <!-- Download Button (initially hidden) -->
-                    <div id="downloadContainer" class="mt-3" style="display: none;">
-                        <button type="button" id="downloadButton" class="btn btn-success action-button" onclick="handleDownload()">
-                            <img src="{{ url_for('static', filename='icons/download.svg') }}" alt="Download" class="button-icon">
-                            <span class="button-text">Download Report</span>
+    <div class="upload-card">
+        <div class="upload-container">
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <div class="drag-drop-area">
+                    <p class="drag-drop-text">Drag and drop your report here or</p>
+                    <input type="file" id="fileInput" name="files" multiple class="d-none" accept=".xlsx">
+                    <!-- Main Choose File button with XLS icon only -->
+                    <button type="button" id="actionButton" class="button" onclick="handleActionButtonClick()">
+                        <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
+                        Choose File
+                    </button>
+                    <div class="file-info">Supported format: .xlsx</div>
+                    <div class="selected-file" id="selectedFile">
+                        <span>Selected file: <span class="selected-file-name" id="selectedFileName"></span></span>
+                        <button type="button" class="remove-file" onclick="removeFile()" style="display: none;">
+                            Remove
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Download Modal -->
-    <div class="modal fade" id="downloadModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Download Report</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="downloadPath" class="form-label">Download Location (Optional)</label>
-                        <input type="text" class="form-control" id="downloadPath" placeholder="e.g., /tmp/reports">
+                <!-- Progress Indicator -->
+                <div class="progress-container" id="progressContainer" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div class="status-message" id="statusMessage">
+                        <span id="processingText" style="display: none;">Processing<span id="processingDots"></span></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="downloadButton">Download</button>
+                <!-- Download Button (initially hidden) -->
+                <div id="downloadContainer" class="download-container" style="display: none;">
+                    <button type="button" id="downloadButton" class="button download-button" onclick="handleDownload()">
+                        Download Report
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Download Handler -->
-    <script type="module">
-        import { showDownloadModal, downloadFile, createDownloadButton, createDownloadLink, loadRecentReports } from '{{ url_for("static", filename="download_handler.js") }}';
-        
-        // Make functions available globally
-        window.showDownloadModal = showDownloadModal;
-        window.downloadFile = downloadFile;
-        window.createDownloadButton = createDownloadButton;
-        window.createDownloadLink = createDownloadLink;
-        window.loadRecentReports = loadRecentReports;
-    </script>
     <script>
         const actionButton = document.getElementById('actionButton');
         const fileInput = document.getElementById('fileInput');
@@ -334,14 +230,15 @@
 
         let currentState = 'choose'; // 'choose', 'upload', 'generate'
         let generatedFilename = null;
+        let processingInterval = null;
 
         function updateButton(state) {
             currentState = state;
             switch(state) {
                 case 'choose':
                     actionButton.innerHTML = `
-                        <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" class="button-icon">
-                        <span class="button-text">Choose File</span>
+                        <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
+                        Choose File
                     `;
                     actionButton.onclick = handleActionButtonClick;
                     actionButton.type = 'button';
@@ -374,9 +271,13 @@
                 selectedFileName.textContent = file.name;
                 selectedFile.classList.add('show');
                 updateButton('upload');
+                // Show remove button
+                selectedFile.querySelector('.remove-file').style.display = 'inline-block';
             } else {
                 selectedFile.classList.remove('show');
                 updateButton('choose');
+                // Hide remove button
+                selectedFile.querySelector('.remove-file').style.display = 'none';
             }
         }
 
@@ -435,19 +336,30 @@
         }
 
         function handleGenerate() {
-            progressContainer.classList.add('show');
+            progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
-            statusMessage.textContent = 'Starting report generation...';
-            
+            // Hide download button
+            downloadContainer.style.display = 'none';
+            // Show processing text with animated dots
+            document.getElementById('processingText').style.display = 'inline';
+            let dots = 0;
+            const maxDots = 3;
+            const processingDots = document.getElementById('processingDots');
+            processingDots.textContent = '';
+            if (processingInterval) clearInterval(processingInterval);
+            processingInterval = setInterval(() => {
+                dots = (dots + 1) % (maxDots + 1);
+                processingDots.textContent = '.'.repeat(dots);
+            }, 500);
+            statusMessage.textContent = '';
+            statusMessage.appendChild(document.getElementById('processingText'));
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 5;
                 if (progress <= 90) {
                     progressBar.style.width = progress + '%';
-                    statusMessage.textContent = 'Processing... ' + progress + '%';
                 }
             }, 500);
-
             fetch('/generate', {
                 method: 'POST',
                 headers: {
@@ -457,28 +369,25 @@
             .then(response => response.json())
             .then(data => {
                 clearInterval(interval);
+                clearInterval(processingInterval);
                 progressBar.style.width = '100%';
+                document.getElementById('processingText').style.display = 'none';
                 statusMessage.textContent = data.message || 'Report generated successfully!';
-                
                 if (data.success) {
-                    // Store the generated filename
                     generatedFilename = data.download_url.split('/').pop();
-                    
-                    // Show download button
                     downloadContainer.style.display = 'block';
-                    
-                    // Hide the generate button
                     actionButton.style.display = 'none';
                 }
-                
                 setTimeout(() => {
-                    progressContainer.classList.remove('show');
+                    progressContainer.style.display = 'none';
                 }, 3000);
             })
             .catch(error => {
                 clearInterval(interval);
+                clearInterval(processingInterval);
                 progressBar.style.width = '100%';
-                progressBar.classList.add('bg-danger');
+                progressBar.style.backgroundColor = '#dc3545';
+                document.getElementById('processingText').style.display = 'none';
                 statusMessage.textContent = 'Error: ' + error.message;
             });
         }
@@ -490,9 +399,11 @@
         }
 
         function removeFile() {
-            fileInput.value = ''; // Clear the file input
+            fileInput.value = '';
             selectedFile.classList.remove('show');
-            updateButton('choose'); // Reset button to choose state
+            updateButton('choose');
+            // Hide remove button
+            selectedFile.querySelector('.remove-file').style.display = 'none';
         }
 
         // Handle file input change
