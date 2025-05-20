@@ -291,5 +291,74 @@ def generate_report():
 
     return asyncio.run(_generate())
 
+@app.route('/download/<filename>')
+@login_required
+def download_file(filename):
+    """Download a report file from storage"""
+    async def _download():
+        try:
+            # Get the user ID from the session
+            user_id = session.get('user')
+            if not user_id:
+                return jsonify({"error": "User not authenticated"}), 401
+
+            # Get custom download path from query parameter if provided
+            custom_path = request.args.get('path')
+            if custom_path:
+                # Validate the custom path is within allowed directories
+                allowed_dirs = ['/tmp/reports', os.path.expanduser('~/Downloads')]
+                custom_path = os.path.abspath(custom_path)
+                if not any(custom_path.startswith(allowed_dir) for allowed_dir in allowed_dirs):
+                    return jsonify({"error": "Invalid download path"}), 400
+
+            # Download the file
+            try:
+                download_path = await storage_service.download_file(
+                    filename=filename,
+                    user_id=user_id,
+                    download_path=custom_path
+                )
+            except StorageError as e:
+                if "not found" in str(e):
+                    return jsonify({"error": "File not found"}), 404
+                elif "Invalid file type" in str(e):
+                    return jsonify({"error": str(e)}), 400
+                else:
+                    raise
+
+            # Get the correct MIME type based on file extension
+            mime_types = {
+                '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                '.pdf': 'application/pdf',
+                '.txt': 'text/plain'
+            }
+            file_ext = os.path.splitext(filename)[1].lower()
+            mime_type = mime_types.get(file_ext, 'application/octet-stream')
+
+            # Send the file to the user with proper headers
+            return send_file(
+                download_path,
+                as_attachment=True,
+                download_name=filename,
+                mimetype=mime_type,
+                etag=False,
+                cache_timeout=0,
+                conditional=True
+            )
+
+        except StorageError as e:
+            logger.error(f"Storage error during download: {str(e)}")
+            return jsonify({"error": str(e)}), 500
+        except Exception as e:
+            logger.error(f"Error during file download: {str(e)}")
+            return jsonify({"error": "Failed to download file"}), 500
+
+    return asyncio.run(_download())
+
+@app.route('/static/download_handler.js')
+def serve_download_handler():
+    """Serve the download handler JavaScript file"""
+    return send_file('templates/download_handler.js', mimetype='application/javascript')
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
