@@ -3,205 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In - BATCH REPORT</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login</title>
     <style>
         @font-face {
-            font-family: 'Departure Mono';
-            src: url('/static/fonts/DepartureMono-Regular.otf') format('opentype'),
-                 url('/static/fonts/DepartureMono-Regular.woff2') format('woff2'),
-                 url('/static/fonts/DepartureMono-Regular.woff') format('woff');
+            font-family: 'Test Soehne Breit Fett';
+            src: url('/static/fonts/test-soehne-breit-fett.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-fett.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Test Soehne Breit Buch';
+            src: url('/static/fonts/test-soehne-breit-buch.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-buch.woff') format('woff');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
         }
-
         @font-face {
-            font-family: 'Departure Mono';
-            src: url('/static/fonts/DepartureMono-Bold.woff2') format('woff2'),
-                 url('/static/fonts/DepartureMono-Bold.woff') format('woff');
-            font-weight: bold;
+            font-family: 'Test Soehne Breit Leicht';
+            src: url('/static/fonts/test-soehne-breit-leicht.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-leicht.woff') format('woff');
+            font-weight: normal;
             font-style: normal;
+            font-display: swap;
         }
-        
-        :root {
-            --accent-color: #0000ff;
+        html, body {
+            height: 100%;
         }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #ffffff;
-        }
-
-        .navbar {
-            padding: 1.5rem 2rem;
-        }
-
-        .navbar-brand {
-            font-family: 'Departure Mono', monospace;
-            font-weight: normal;
-            font-size: 1.5rem;
-            position: relative;
-        }
-
-        .navbar-brand::after {
-            content: '|';
-            position: absolute;
-            right: -8px;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            from, to { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .btn-primary:hover {
-            background-color: #ff9900;
-            border-color: #ff9900;
-        }
-
-        .btn-outline-primary {
-            color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .login-section {
             min-height: 100vh;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #faf7ef;
+        }
+        .navbar {
+            position: absolute;
+            top: 2rem;
+            left: 0;
+            width: 100vw;
             display: flex;
-            align-items: center;
-            padding: 4rem 2rem;
-            background: #fff;
+            justify-content: center;
+            z-index: 10;
         }
-
-        .login-form {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: #f8faff;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.04);
-            border: 1px solid #e6f0fa;
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
         }
-
-        .login-title {
-            font-family: 'Departure Mono', monospace;
-            font-size: 2.5rem;
-            color: var(--accent-color);
+        .nav-btn {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
             font-weight: normal;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: #444;
-        }
-
-        .form-control {
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
-            border: 1px solid #e6f0fa;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.2rem rgba(0, 0, 255, 0.1);
-        }
-
-        .form-text {
-            color: #666;
-        }
-
-        .signup-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #666;
-        }
-
-        .signup-link a {
-            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            outline: none;
+            border-radius: 2rem;
+            padding: 0.7rem 2.2rem;
+            cursor: pointer;
+            background: #f3f1eb;
+            color: #000;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: none;
             text-decoration: none;
         }
-
-        .signup-link a:hover {
-            text-decoration: underline;
+        .nav-btn.active, .nav-btn:focus {
+            background: #000;
+            color: #fff;
         }
-
-        .forgot-password {
-            text-align: right;
-            margin-top: 0.5rem;
-        }
-
-        .forgot-password a {
-            color: var(--accent-color);
+        .nav-btn:hover {
+            background: #000;
+            color: #fff;
             text-decoration: none;
-            font-size: 0.9rem;
         }
-
-        .forgot-password a:hover {
-            text-decoration: underline;
+        .login-container {
+            max-width: 400px;
+            margin: 8rem auto 0 auto;
+            background: #fff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+            border: 1px solid #ececec;
+            text-align: center;
+        }
+        .login-title {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 2rem;
+            font-weight: normal;
+            letter-spacing: 0.03em;
+            margin-bottom: 2.5rem;
+            color: #000;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 0.5rem;
+        }
+        .form-group label {
+            margin-bottom: 0.3rem;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        input[type="email"],
+        input[type="password"] {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            padding: 0.8rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #000;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border: 1.5px solid #000;
+        }
+        .submit-btn {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.8rem 2.2rem;
+            background: #000;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .submit-btn:hover {
+            background: #222;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        @media (max-width: 600px) {
+            .navbar {
+                top: 1rem;
+            }
+            .login-container {
+                margin-top: 5rem;
+                padding: 1.5rem 0.5rem 1.5rem 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white">
-        <div class="container">
-            <a class="navbar-brand" href="/">BATCH REPORT.</a>
-            <div class="ms-auto">
-                <a href="/pricing" class="btn btn-outline-primary me-2">Pricing</a>
-                <a href="/login" class="btn btn-outline-primary me-2">Log In</a>
-                <a href="/signup" class="btn btn-primary">Sign Up</a>
-            </div>
+    <nav class="navbar">
+        <div class="nav-buttons">
+            <a href="{{ url_for('index') }}" class="nav-btn">HOME</a>
+            <a href="{{ url_for('signup') }}" class="nav-btn{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
         </div>
     </nav>
-
-    <!-- Login Section -->
-    <section class="login-section">
-        <div class="container">
-            <div class="login-form">
-                <h1 class="login-title">Welcome Back</h1>
-                {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-                {% endif %}
-                <form action="/login" method="POST">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                        <div class="forgot-password">
-                            <a href="/forgot-password">Forgot your password?</a>
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Log In</button>
-                    </div>
-                </form>
-                <div class="signup-link">
-                    Don't have an account? <a href="/signup">Sign up</a>
-                </div>
+    <div class="login-container">
+        <div class="login-title">Log in to Batch</div>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="username">
             </div>
-        </div>
-    </section>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="submit-btn">Login</button>
+        </form>
+    </div>
 </body>
 </html> 
