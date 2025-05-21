@@ -441,7 +441,7 @@
             .then(data => {
                 clearInterval(progressInterval);
                 uploadProgressBar.style.width = '100%';
-                uploadStatusMessage.textContent = `Added ${data.student_count} number of student reports`;
+                uploadStatusMessage.textContent = `Added ${data.student_count} student reports`;
                 // Remove progress bar after 3 seconds
                 setTimeout(() => {
                     uploadProgressContainer.style.display = 'none';

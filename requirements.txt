@@ -8,3 +8,4 @@ supabase>=1.0.0
 openpyxl>=3.0.0
 werkzeug>=2.0.0
 asgiref>=3.0.0
+pandas>=2.0.0
