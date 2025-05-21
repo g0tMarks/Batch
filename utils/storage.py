@@ -14,7 +14,7 @@ class StorageService:
     def __init__(self, supabase_client):
         self.supabase = supabase_client
 
-    async def upload_file(self, local_path: str, bucket: str = "documents", user_id: str = None) -> str:
+    def upload_file(self, local_path: str, bucket: str = "documents", user_id: str = None) -> str:
         """Upload a file to Supabase storage asynchronously"""
         try:
             if not os.path.exists(local_path):
@@ -33,8 +33,7 @@ class StorageService:
             with open(local_path, "rb") as f:
                 # Upload file
                 try:
-                    await asyncio.to_thread(
-                        self.supabase.storage.from_(bucket).upload,
+                    self.supabase.storage.from_(bucket).upload(
                         file=f,
                         path=storage_path,
                         file_options={"content-type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
@@ -44,10 +43,7 @@ class StorageService:
                     logger.error(f"Error during file upload: {str(upload_error)}")
                     # Try to delete the file if it exists
                     try:
-                        await asyncio.to_thread(
-                            self.supabase.storage.from_(bucket).remove,
-                            [storage_path]
-                        )
+                        self.supabase.storage.from_(bucket).remove([storage_path])
                         logger.debug(f"Cleaned up existing file {storage_path}")
                     except Exception as delete_error:
                         logger.warning(f"Failed to clean up existing file: {str(delete_error)}")
@@ -65,7 +61,7 @@ class StorageService:
             logger.error(f"Error in upload_file: {str(e)}")
             raise StorageError(f"Error uploading file to storage: {str(e)}")
 
-    async def download_file(self, filename: str, bucket: str = "documents", user_id: str = None, download_path: str = None) -> str:
+    def download_file(self, filename: str, bucket: str = "documents", user_id: str = None, download_path: str = None) -> str:
         """Download a file from Supabase storage asynchronously
         
         Args:
@@ -95,10 +91,7 @@ class StorageService:
 
             # Check if file exists in storage
             try:
-                file_list = await asyncio.to_thread(
-                    self.supabase.storage.from_(bucket).list,
-                    path=user_id
-                )
+                file_list = self.supabase.storage.from_(bucket).list(path=user_id)
                 
                 if not any(f['name'] == filename for f in file_list):
                     raise StorageError(f"File {filename} not found in storage")
@@ -118,10 +111,7 @@ class StorageService:
 
             # Download the file
             try:
-                response = await asyncio.to_thread(
-                    self.supabase.storage.from_(bucket).download,
-                    storage_path
-                )
+                response = self.supabase.storage.from_(bucket).download(storage_path)
                 
                 # Write the file
                 with open(download_path, "wb") as f:
@@ -138,13 +128,10 @@ class StorageService:
             logger.error(f"Error in download_file: {str(e)}")
             raise StorageError(f"Error downloading file from storage: {str(e)}")
 
-    async def delete_file(self, filename: str, bucket: str = "documents") -> None:
+    def delete_file(self, filename: str, bucket: str = "documents") -> None:
         """Delete a file from Supabase storage asynchronously"""
         try:
-            await asyncio.to_thread(
-                self.supabase.storage.from_(bucket).remove,
-                [filename]
-            )
+            self.supabase.storage.from_(bucket).remove([filename])
         except Exception as e:
             raise StorageError(f"Error deleting file from storage: {str(e)}")
 

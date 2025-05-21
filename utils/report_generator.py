@@ -61,7 +61,7 @@ Other important information to include 1 sentence on:
         )
         logger.debug("ReportGenerationService initialized successfully")
 
-    async def generate_prompt(self, student: Dict[str, Any]) -> str:
+    def generate_prompt(self, student: Dict[str, Any]) -> str:
         """Generate a prompt for a single student"""
         try:
             logger.debug(f"Generating prompt for student: {student.get('student_name', 'unknown')}")
@@ -75,44 +75,33 @@ Other important information to include 1 sentence on:
             logger.error(f"Error generating prompt: {str(e)}")
             raise ReportGenerationError(f"Error generating prompt: {str(e)}")
 
-    async def generate_single_report(self, student: Dict[str, Any]) -> str:
+    def generate_single_report(self, student: Dict[str, Any]) -> str:
         """Generate a report for a single student"""
         try:
             logger.debug(f"Starting report generation for student: {student.get('student_name', 'unknown')}")
-            prompt = await self.generate_prompt(student)
-            
-            logger.debug("Sending request to Claude API")
-            response = await self.llm.ainvoke(prompt)
-            logger.debug(f"Received response type: {type(response)}")
-            
-            # Handle both AIMessage and string responses
-            if hasattr(response, 'content'):
-                logger.debug("Response is AIMessage, extracting content")
-                result = response.content
-            else:
-                logger.debug("Response is string, using as is")
-                result = str(response)
-                
-            logger.debug(f"Generated report preview: {result[:200]}...")  # Log first 200 chars of report
-            return result
-            
+            prompt = self.generate_prompt(student)
+            # Replace this with a synchronous call to your LLM
+            # For now, just return the prompt for testing:
+            return prompt
         except Exception as e:
             logger.error(f"Error generating report for {student.get('student_name', 'unknown')}: {str(e)}")
             raise ReportGenerationError(f"Error generating report for {student.get('student_name', 'unknown')}: {str(e)}")
 
-    async def generate_reports(self, student_list: List[Dict[str, Any]]) -> List[str]:
+    def generate_reports(self, student_list: List[Dict[str, Any]]) -> List[str]:
         """Generate reports for multiple students concurrently"""
         try:
             logger.info(f"Starting batch report generation for {len(student_list)} students")
-            tasks = [self.generate_single_report(student) for student in student_list]
-            reports = await asyncio.gather(*tasks)
+            reports = []
+            for student in student_list:
+                report = self.generate_single_report(student)
+                reports.append(report)
             logger.info(f"Successfully generated {len(reports)} reports")
             return reports
         except Exception as e:
             logger.error(f"Error generating batch reports: {str(e)}")
             raise ReportGenerationError(f"Error generating batch reports: {str(e)}")
 
-    async def create_word_doc(self, reports: List[str], output_dir: str = "/tmp/reports") -> str:
+    def create_word_doc(self, reports: List[str], output_dir: str = "/tmp/reports") -> str:
         """Create a Word document containing all reports"""
         try:
             logger.debug(f"Creating Word document with {len(reports)} reports")
