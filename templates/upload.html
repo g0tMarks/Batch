@@ -96,15 +96,22 @@
             background: none;
             border: 1px solid #000;
             color: #000;
-            padding: 0.8rem 1.5rem;
+            padding: 0.8rem 2.2rem;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 2rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            width: 270px;
+            height: 45px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
         }
         .button:hover, .download-button:hover {
             background: #000;
@@ -171,6 +178,26 @@
                 padding: 1.5rem 0.5rem 1.5rem 0.5rem;
             }
         }
+        .button:hover img {
+            filter: brightness(0) invert(1);
+        }
+        .button:disabled img {
+            filter: brightness(0.5);
+        }
+        .drag-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        .drag-drop-area.drag-over {
+            border-color: #000;
+            background: #f8f8f8;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -191,7 +218,6 @@
                         <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
                         Choose File
                     </button>
-                    <div class="file-info">Supported format: .xlsx</div>
                     <div class="selected-file" id="selectedFile">
                         <span>Selected file: <span class="selected-file-name" id="selectedFileName"></span></span>
                         <button type="button" class="remove-file" onclick="removeFile()" style="display: none;">
@@ -245,16 +271,16 @@
                     break;
                 case 'upload':
                     actionButton.innerHTML = `
-                        <img src="{{ url_for('static', filename='icons/cloud-arrow-up.svg') }}" alt="Upload" class="button-icon">
-                        <span class="button-text">Upload</span>
+                        <img src="{{ url_for('static', filename='icons/cloud-arrow-up.svg') }}" alt="Upload" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
+                        Upload
                     `;
                     actionButton.onclick = handleUpload;
                     actionButton.type = 'button';
                     break;
                 case 'generate':
                     actionButton.innerHTML = `
-                        <img src="{{ url_for('static', filename='icons/magic-wand.svg') }}" alt="Generate" class="button-icon">
-                        <span class="button-text">Generate Report</span>
+                        <img src="{{ url_for('static', filename='icons/magic-wand.svg') }}" alt="Generate" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
+                        Generate Report
                     `;
                     actionButton.onclick = handleGenerate;
                     actionButton.type = 'button';
@@ -302,7 +328,7 @@
                     const successMessage = document.createElement('div');
                     successMessage.className = 'alert alert-success mt-3';
                     successMessage.textContent = 'File uploaded successfully!';
-                    actionButton.parentNode.insertBefore(successMessage, actionButton);
+                    actionButton.parentNode.insertBefore(successMessage, actionButton.nextSibling);
                     
                     // Remove success message after 3 seconds
                     setTimeout(() => {
@@ -336,6 +362,9 @@
         }
 
         function handleGenerate() {
+            // Disable the button while generating
+            actionButton.disabled = true;
+            
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
             // Hide download button
@@ -360,13 +389,19 @@
                     progressBar.style.width = progress + '%';
                 }
             }, 500);
+
             fetch('/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 clearInterval(interval);
                 clearInterval(processingInterval);
@@ -377,6 +412,8 @@
                     generatedFilename = data.download_url.split('/').pop();
                     downloadContainer.style.display = 'block';
                     actionButton.style.display = 'none';
+                } else {
+                    throw new Error(data.message || 'Failed to generate report');
                 }
                 setTimeout(() => {
                     progressContainer.style.display = 'none';
@@ -389,6 +426,8 @@
                 progressBar.style.backgroundColor = '#dc3545';
                 document.getElementById('processingText').style.display = 'none';
                 statusMessage.textContent = 'Error: ' + error.message;
+                actionButton.disabled = false;
+                updateButton('generate');
             });
         }
 
@@ -433,11 +472,11 @@
         });
 
         function highlight(e) {
-            dragDropArea.classList.add('border-primary');
+            dragDropArea.classList.add('drag-over');
         }
 
         function unhighlight(e) {
-            dragDropArea.classList.remove('border-primary');
+            dragDropArea.classList.remove('drag-over');
         }
 
         dragDropArea.addEventListener('drop', handleDrop, false);
