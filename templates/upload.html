@@ -93,9 +93,9 @@
         }
         .button, .download-button {
             font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: none;
+            background: #000;
             border: 1px solid #000;
-            color: #000;
+            color: #fff;
             padding: 0.8rem 2.2rem;
             font-size: 1rem;
             cursor: pointer;
@@ -113,9 +113,17 @@
             white-space: nowrap;
             overflow: hidden;
         }
+        .button img, .download-button img {
+            filter: brightness(0) invert(1);
+            transition: filter 0.3s;
+        }
         .button:hover, .download-button:hover {
-            background: #000;
-            color: #fff;
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+        .button:hover img, .download-button:hover img {
+            filter: none;
         }
         .button:disabled {
             opacity: 0.5;
@@ -178,11 +186,36 @@
                 padding: 1.5rem 0.5rem 1.5rem 0.5rem;
             }
         }
-        .button:hover img {
-            filter: brightness(0) invert(1);
+        .upload-title {
+            font-family: 'Test Soehne Breit Buch', monospace, sans-serif;
+            font-size: 2.2rem;
+            color: #000;
+            background: none;
+            display: block;
+            padding: 0;
+            border-radius: 0;
+            margin-bottom: 0.7rem;
+            letter-spacing: 0.03em;
+            text-align: center;
+            font-weight: normal;
+            box-shadow: none;
         }
-        .button:disabled img {
-            filter: brightness(0.5);
+        .upload-subtitle {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .upload-card {
+            max-width: 540px;
+            margin: 7rem auto 0 auto;
+            background: #f8faff;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+            border: 1px solid #ececec;
+            text-align: center;
         }
         .drag-drop-area {
             border: 2px dashed #ccc;
@@ -198,6 +231,58 @@
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+        @media (max-width: 600px) {
+            .batch-link {
+                font-size: 1.3rem;
+                left: 1rem;
+                top: 1rem;
+            }
+            .upload-title {
+                font-size: 1.3rem;
+            }
+        }
+        .batch-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
+            font-size: 2rem;
+            color: #000;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            z-index: 20;
+            transition: color 0.2s;
+        }
+        .batch-link:hover {
+            color: #222;
+            text-decoration: underline;
+        }
+        .progress-container {
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .progress {
+            width: 100%;
+            background: #eee;
+            border-radius: 1rem;
+            height: 10px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #0022ff;
+            width: 0%;
+            border-radius: 1rem;
+            transition: width 0.3s;
+        }
+        .status-message {
+            font-size: 0.95rem;
+            color: #222;
+            margin-top: 0.2rem;
+        }
     </style>
 </head>
 <body>
@@ -207,17 +292,25 @@
             <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
         </div>
     </nav>
+    <a href="{{ url_for('index') }}" class="batch-link">Batch</a>
     <div class="upload-card">
         <div class="upload-container">
+             <!-- Progress Indicator <div class="upload-title" id="uploadTitle">Add file</div>-->
             <form action="/upload" method="POST" enctype="multipart/form-data">
                 <div class="drag-drop-area">
-                    <p class="drag-drop-text">Drag and drop your report here or</p>
+                    <p class="drag-drop-text">Drag and drop your report or use the button below</p>
                     <input type="file" id="fileInput" name="files" multiple class="d-none" accept=".xlsx">
                     <!-- Main Choose File button with XLS icon only -->
                     <button type="button" id="actionButton" class="button" onclick="handleActionButtonClick()">
                         <img src="{{ url_for('static', filename='icons/file-xls.svg') }}" alt="Choose Files" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
                         Choose File
                     </button>
+                    <div id="uploadProgressContainer" class="progress-container" style="display: none; margin-top: 1rem;">
+                        <div class="progress">
+                            <div class="progress-bar" id="uploadProgressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="status-message" id="uploadStatusMessage">Parsing data</div>
+                    </div>
                     <div class="selected-file" id="selectedFile">
                         <span>Selected file: <span class="selected-file-name" id="selectedFileName"></span></span>
                         <button type="button" class="remove-file" onclick="removeFile()" style="display: none;">
@@ -293,17 +386,23 @@
         }
 
         function updateSelectedFile(file) {
+            const uploadTitle = document.getElementById('uploadTitle');
+            const dragDropText = document.querySelector('.drag-drop-text');
             if (file) {
                 selectedFileName.textContent = file.name;
                 selectedFile.classList.add('show');
                 updateButton('upload');
                 // Show remove button
                 selectedFile.querySelector('.remove-file').style.display = 'inline-block';
+                if (uploadTitle) uploadTitle.textContent = 'Upload file';
+                if (dragDropText) dragDropText.textContent = 'Upload your report for processing';
             } else {
                 selectedFile.classList.remove('show');
                 updateButton('choose');
                 // Hide remove button
                 selectedFile.querySelector('.remove-file').style.display = 'none';
+                if (uploadTitle) uploadTitle.textContent = 'Add file';
+                if (dragDropText) dragDropText.textContent = 'Drag and drop your report or use the button below';
             }
         }
 
@@ -311,53 +410,61 @@
             const formData = new FormData();
             formData.append('files', fileInput.files[0]);
 
-            // Show loading state
+            // Show progress bar
+            const uploadProgressContainer = document.getElementById('uploadProgressContainer');
+            const uploadProgressBar = document.getElementById('uploadProgressBar');
+            const uploadStatusMessage = document.getElementById('uploadStatusMessage');
+            uploadProgressContainer.style.display = 'block';
+            uploadProgressBar.style.width = '0%';
+            uploadStatusMessage.textContent = 'Parsing data';
+
             actionButton.disabled = true;
             actionButton.innerHTML = `
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Uploading...
             `;
 
+            // Simulate progress bar animation
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                if (progress <= 90) {
+                    uploadProgressBar.style.width = progress + '%';
+                }
+            }, 200);
+
             fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (response.ok) {
-                    // Show success message
-                    const successMessage = document.createElement('div');
-                    successMessage.className = 'alert alert-success mt-3';
-                    successMessage.textContent = 'File uploaded successfully!';
-                    actionButton.parentNode.insertBefore(successMessage, actionButton.nextSibling);
-                    
-                    // Remove success message after 3 seconds
-                    setTimeout(() => {
-                        successMessage.remove();
-                    }, 3000);
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                uploadProgressBar.style.width = '100%';
+                uploadStatusMessage.textContent = `Added ${data.student_count} number of student reports`;
+                // Remove progress bar after 3 seconds
+                setTimeout(() => {
+                    uploadProgressContainer.style.display = 'none';
+                }, 3000);
 
-                    // Update button to generate state
-                    updateButton('generate');
-                    
-                    // Clear the file input and selected file display
-                    fileInput.value = '';
-                    selectedFile.classList.remove('show');
-                }
+                // Update button to generate state
+                updateButton('generate');
+                // Clear the file input and selected file display
+                fileInput.value = '';
+                selectedFile.classList.remove('show');
                 actionButton.disabled = false;
             })
             .catch(error => {
-                console.error('Error:', error);
+                clearInterval(progressInterval);
+                uploadProgressBar.style.width = '100%';
+                uploadProgressBar.style.backgroundColor = '#dc3545';
+                uploadStatusMessage.textContent = 'Error uploading file. Please try again.';
+                setTimeout(() => {
+                    uploadProgressContainer.style.display = 'none';
+                    uploadProgressBar.style.backgroundColor = '';
+                }, 3000);
                 actionButton.disabled = false;
                 updateButton('upload');
-                
-                // Show error message
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'alert alert-danger mt-3';
-                errorMessage.textContent = 'Error uploading file. Please try again.';
-                actionButton.parentNode.insertBefore(errorMessage, actionButton);
-                
-                setTimeout(() => {
-                    errorMessage.remove();
-                }, 3000);
             });
         }
 
