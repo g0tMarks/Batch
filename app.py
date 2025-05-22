@@ -5,6 +5,7 @@ import os
 import secrets
 from werkzeug.utils import secure_filename
 import logging
+from datetime import datetime
 from utils.excel_parser import read_student_data_from_excel
 from utils.report_generator import ReportGenerationService, ReportGenerationError
 from utils.storage import storage_service, StorageError
@@ -124,65 +125,51 @@ def login_required(f):
 @login_required
 def upload_page():
     if request.method == 'POST':
+        print("Upload endpoint hit")
+        if 'files' not in request.files:
+            print("No file part in request")
+            return jsonify({'error': 'No file part'}), 400
+
+        file = request.files['files']
+        print(f"Received file: {file.filename}")
+        if file.filename == '':
+            print("No selected file")
+            return jsonify({'error': 'No selected file'}), 400
+
         try:
-            logger.debug("POST request received")
-            logger.debug(f"Files in request: {request.files}")
-            
-            # Check if the post request has the file part
-            if 'files' not in request.files:
-                logger.error("No file part in request")
-                flash('No file part')
-                return redirect(request.url)
-            
-            file = request.files['files']
-            logger.debug(f"File received: {file.filename}")
-            
-            # If user does not select file, browser also
-            # submit an empty part without filename
-            if file.filename == '':
-                logger.error("No selected file")
-                flash('No selected file')
-                return redirect(request.url)
-            
+            # Save the file to disk
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                logger.debug(f"Secured filename: {filename}")
-                
-                # Save the file
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                logger.debug(f"Attempting to save file to: {file_path}")
+                file.save(file_path)
+                print(f"Saved file to {file_path}")
                 
-                try:
-                    file.save(file_path)
-                    logger.debug("File saved successfully")
-                except Exception as save_error:
-                    logger.error(f"Error saving file: {str(save_error)}")
-                    flash(f'Error saving file: {str(save_error)}')
-                    return redirect(request.url)
+                # Store file info in database
+                user_id = session['user']
+                result = supabase.table('uploads').insert({
+                    'user_id': user_id,
+                    'filename': filename,
+                    'file_path': file_path,
+                    'created_at': datetime.utcnow().isoformat()
+                }).execute()
+                print(f"Stored file info in database: {result.data}")
                 
-                # Store file information in Supabase
-                try:
-                    logger.debug("Attempting to store file info in Supabase")
-                    result = supabase.table('uploads').insert({
-                        'user_id': session['user'],
-                        'filename': filename,
-                        'file_path': file_path
-                    }).execute()
-                    logger.debug(f"Supabase insert result: {result}")
-                except Exception as e:
-                    logger.error(f"Error storing file info in Supabase: {str(e)}")
-                    flash('File uploaded but failed to save to database')
+                # Count students
+                import pandas as pd
+                df = pd.read_excel(file_path)
+                student_count = len(df)
+                print(f"Student count: {student_count}")
                 
-                flash('File uploaded successfully')
-                return redirect(url_for('upload_page'))
+                return jsonify({
+                    'student_count': student_count,
+                    'upload_id': result.data[0]['id'] if result.data else None
+                }), 200
             else:
-                logger.error(f"Invalid file type: {file.filename}")
-                flash('Invalid file type. Please upload an .xlsx file')
-                return redirect(request.url)
+                return jsonify({'error': 'Invalid file type. Only .xlsx files are allowed.'}), 400
+
         except Exception as e:
-            logger.error(f"Unexpected error during upload: {str(e)}")
-            flash(f'Error uploading file: {str(e)}')
-            return redirect(request.url)
+            print("Exception occurred:", e)
+            return jsonify({'error': str(e)}), 500
             
     return render_template('upload.html')
 

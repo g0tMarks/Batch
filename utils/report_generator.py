@@ -61,7 +61,7 @@ Other important information to include 1 sentence on:
         )
         logger.debug("ReportGenerationService initialized successfully")
 
-    async def generate_prompt(self, student: Dict[str, Any]) -> str:
+    def generate_prompt(self, student: Dict[str, Any]) -> str:
         """Generate a prompt for a single student"""
         try:
             logger.debug(f"Generating prompt for student: {student.get('student_name', 'unknown')}")
@@ -79,23 +79,17 @@ Other important information to include 1 sentence on:
         """Generate a report for a single student"""
         try:
             logger.debug(f"Starting report generation for student: {student.get('student_name', 'unknown')}")
-            prompt = await self.generate_prompt(student)
+            prompt = self.generate_prompt(student)
             
-            logger.debug("Sending request to Claude API")
+            # Use the LLM to generate the report
             response = await self.llm.ainvoke(prompt)
-            logger.debug(f"Received response type: {type(response)}")
-            
-            # Handle both AIMessage and string responses
-            if hasattr(response, 'content'):
-                logger.debug("Response is AIMessage, extracting content")
-                result = response.content
+            if isinstance(response, AIMessage):
+                report = response.content
             else:
-                logger.debug("Response is string, using as is")
-                result = str(response)
+                report = str(response)
                 
-            logger.debug(f"Generated report preview: {result[:200]}...")  # Log first 200 chars of report
-            return result
-            
+            logger.debug(f"Generated report for {student.get('student_name', 'unknown')}")
+            return report
         except Exception as e:
             logger.error(f"Error generating report for {student.get('student_name', 'unknown')}: {str(e)}")
             raise ReportGenerationError(f"Error generating report for {student.get('student_name', 'unknown')}: {str(e)}")
@@ -104,8 +98,10 @@ Other important information to include 1 sentence on:
         """Generate reports for multiple students concurrently"""
         try:
             logger.info(f"Starting batch report generation for {len(student_list)} students")
-            tasks = [self.generate_single_report(student) for student in student_list]
-            reports = await asyncio.gather(*tasks)
+            reports = []
+            for student in student_list:
+                report = await self.generate_single_report(student)
+                reports.append(report)
             logger.info(f"Successfully generated {len(reports)} reports")
             return reports
         except Exception as e:
