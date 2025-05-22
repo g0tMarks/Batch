@@ -14,7 +14,7 @@ class StorageService:
     def __init__(self, supabase_client):
         self.supabase = supabase_client
 
-    def upload_file(self, local_path: str, bucket: str = "documents", user_id: str = None) -> str:
+    async def upload_file(self, local_path: str, bucket: str = "documents", user_id: str = None) -> str:
         """Upload a file to Supabase storage asynchronously"""
         try:
             if not os.path.exists(local_path):
@@ -61,7 +61,7 @@ class StorageService:
             logger.error(f"Error in upload_file: {str(e)}")
             raise StorageError(f"Error uploading file to storage: {str(e)}")
 
-    def download_file(self, filename: str, bucket: str = "documents", user_id: str = None, download_path: str = None) -> str:
+    async def download_file(self, filename: str, bucket: str = "documents", user_id: str = None, download_path: str = None) -> str:
         """Download a file from Supabase storage asynchronously
         
         Args:

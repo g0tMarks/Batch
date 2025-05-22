@@ -75,25 +75,32 @@ Other important information to include 1 sentence on:
             logger.error(f"Error generating prompt: {str(e)}")
             raise ReportGenerationError(f"Error generating prompt: {str(e)}")
 
-    def generate_single_report(self, student: Dict[str, Any]) -> str:
+    async def generate_single_report(self, student: Dict[str, Any]) -> str:
         """Generate a report for a single student"""
         try:
             logger.debug(f"Starting report generation for student: {student.get('student_name', 'unknown')}")
             prompt = self.generate_prompt(student)
-            # Replace this with a synchronous call to your LLM
-            # For now, just return the prompt for testing:
-            return prompt
+            
+            # Use the LLM to generate the report
+            response = await self.llm.ainvoke(prompt)
+            if isinstance(response, AIMessage):
+                report = response.content
+            else:
+                report = str(response)
+                
+            logger.debug(f"Generated report for {student.get('student_name', 'unknown')}")
+            return report
         except Exception as e:
             logger.error(f"Error generating report for {student.get('student_name', 'unknown')}: {str(e)}")
             raise ReportGenerationError(f"Error generating report for {student.get('student_name', 'unknown')}: {str(e)}")
 
-    def generate_reports(self, student_list: List[Dict[str, Any]]) -> List[str]:
+    async def generate_reports(self, student_list: List[Dict[str, Any]]) -> List[str]:
         """Generate reports for multiple students concurrently"""
         try:
             logger.info(f"Starting batch report generation for {len(student_list)} students")
             reports = []
             for student in student_list:
-                report = self.generate_single_report(student)
+                report = await self.generate_single_report(student)
                 reports.append(report)
             logger.info(f"Successfully generated {len(reports)} reports")
             return reports
@@ -101,7 +108,7 @@ Other important information to include 1 sentence on:
             logger.error(f"Error generating batch reports: {str(e)}")
             raise ReportGenerationError(f"Error generating batch reports: {str(e)}")
 
-    def create_word_doc(self, reports: List[str], output_dir: str = "/tmp/reports") -> str:
+    async def create_word_doc(self, reports: List[str], output_dir: str = "/tmp/reports") -> str:
         """Create a Word document containing all reports"""
         try:
             logger.debug(f"Creating Word document with {len(reports)} reports")

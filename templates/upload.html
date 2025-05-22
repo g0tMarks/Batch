@@ -441,7 +441,14 @@
             .then(data => {
                 clearInterval(progressInterval);
                 uploadProgressBar.style.width = '100%';
-                uploadStatusMessage.textContent = `Added ${data.student_count} student reports`;
+                
+                // Display both student count and database message
+                if (data.message) {
+                    uploadStatusMessage.textContent = `Added ${data.student_count} student reports. ${data.message}`;
+                } else {
+                    uploadStatusMessage.textContent = `Added ${data.student_count} student reports`;
+                }
+                
                 // Remove progress bar after 3 seconds
                 setTimeout(() => {
                     uploadProgressContainer.style.display = 'none';
@@ -469,6 +476,7 @@
         }
 
         function handleGenerate() {
+            console.log("Generate button clicked");
             // Disable the button while generating
             actionButton.disabled = true;
             
@@ -497,6 +505,7 @@
                 }
             }, 500);
 
+            console.log("Sending fetch request to /generate");
             fetch('/generate', {
                 method: 'POST',
                 headers: {
@@ -504,22 +513,27 @@
                 }
             })
             .then(response => {
+                console.log("Received response:", response.status, response.statusText);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    console.error("Response not OK:", response.status, response.statusText);
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
                 }
                 return response.json();
             })
             .then(data => {
+                console.log("Received data:", data);
                 clearInterval(interval);
                 clearInterval(processingInterval);
                 progressBar.style.width = '100%';
                 document.getElementById('processingText').style.display = 'none';
                 statusMessage.textContent = data.message || 'Report generated successfully!';
                 if (data.success) {
+                    console.log("Report generation successful, download URL:", data.download_url);
                     generatedFilename = data.download_url.split('/').pop();
                     downloadContainer.style.display = 'block';
                     actionButton.style.display = 'none';
                 } else {
+                    console.error("Report generation failed:", data.message);
                     throw new Error(data.message || 'Failed to generate report');
                 }
                 setTimeout(() => {
@@ -527,6 +541,7 @@
                 }, 3000);
             })
             .catch(error => {
+                console.error("Error in fetch:", error);
                 clearInterval(interval);
                 clearInterval(processingInterval);
                 progressBar.style.width = '100%';
@@ -599,4 +614,4 @@
         updateButton('choose');
     </script>
 </body>
-</html> 
+</html>
