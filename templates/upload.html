@@ -288,11 +288,12 @@
 <body>
     <nav class="navbar">
         <div class="nav-buttons">
-            <a href="{{ url_for('index') }}" class="nav-btn">HOME</a>
+            <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
+            <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
             <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
         </div>
     </nav>
-    <a href="{{ url_for('index') }}" class="batch-link">Batch</a>
+    <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
     <div class="upload-card">
         <div class="upload-container">
              <!-- Progress Indicator <div class="upload-title" id="uploadTitle">Add file</div>-->
@@ -327,11 +328,18 @@
                         <span id="processingText" style="display: none;">Processing<span id="processingDots"></span></span>
                     </div>
                 </div>
-                <!-- Download Button (initially hidden) -->
+                <!-- Download Button and View Reports (initially hidden) -->
                 <div id="downloadContainer" class="download-container" style="display: none;">
-                    <button type="button" id="downloadButton" class="button download-button" onclick="handleDownload()">
+                    <button type="button" id="downloadButton" class="button download-button" onclick="handleDownload()" style="margin-bottom: 1rem;">
+                        <img src="{{ url_for('static', filename='icons/download.svg') }}" alt="Download" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em;">
                         Download Report
                     </button>
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('view_reports') }}" class="button" style="background: transparent; color: #000; border: 1px solid #000;">
+                            <img src="{{ url_for('static', filename='icons/list-bullets.svg') }}" alt="View Reports" style="width: 1.2em; height: 1.2em; vertical-align: middle; margin-right: 0.5em; filter: none;">
+                            View All Reports
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -517,7 +525,14 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                    // Try to parse the error response as JSON if possible
+                    return response.json().catch(() => {
+                        // If it's not JSON, throw a generic error with status
+                        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+                    }).then(errorData => {
+                        // If we got JSON error data, throw with the error message
+                        throw new Error(errorData.message || `Server error: ${response.status}`);
+                    });
                 }
                 return response.json();
             })
@@ -528,9 +543,15 @@
                 document.getElementById('processingText').style.display = 'none';
                 statusMessage.textContent = data.message || 'Report generated successfully!';
                 if (data.success) {
-                    generatedFilename = data.download_url.split('/').pop();
+                    // Use the filename directly from the response if available
+                    generatedFilename = data.filename || data.download_url.split('/').pop();
+                    console.log("Generated filename:", generatedFilename);
                     downloadContainer.style.display = 'block';
-                    actionButton.style.display = 'none';
+                    
+                    // Check if actionButton exists before trying to access its style
+                    if (actionButton) {
+                        actionButton.style.display = 'none';
+                    }
                 } else {
                     throw new Error(data.message || 'Failed to generate report');
                 }

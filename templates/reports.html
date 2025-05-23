@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Reports - BATCH REPORT</title>
+    <style>
+        @font-face {
+            font-family: 'Test Soehne Breit Fett';
+            src: url('/static/fonts/test-soehne-breit-fett.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-fett.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Test Soehne Breit Buch';
+            src: url('/static/fonts/test-soehne-breit-buch.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-buch.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Test Soehne Breit Leicht';
+            src: url('/static/fonts/test-soehne-breit-leicht.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-leicht.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #faf7ef;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .navbar {
+            position: absolute;
+            top: 2rem;
+            left: 0;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .nav-btn {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            outline: none;
+            border-radius: 2rem;
+            padding: 0.7rem 2.2rem;
+            cursor: pointer;
+            background: #f3f1eb;
+            color: #000;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: none;
+            text-decoration: none;
+        }
+        .nav-btn.active, .nav-btn:focus {
+            background: #000;
+            color: #fff;
+        }
+        .nav-btn:hover {
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+        }
+        .batch-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
+            font-size: 2rem;
+            color: #000;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            z-index: 20;
+            transition: color 0.2s;
+        }
+        .batch-link:hover {
+            color: #222;
+            text-decoration: underline;
+        }
+        .reports-container {
+            max-width: 800px;
+            margin: 8rem auto 2rem auto;
+            padding: 0 1rem;
+        }
+        .reports-title {
+            font-family: 'Test Soehne Breit Buch', monospace, sans-serif;
+            font-size: 2.2rem;
+            color: #000;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.03em;
+            font-weight: normal;
+        }
+        .reports-list {
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+        .report-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .report-item:last-child {
+            border-bottom: none;
+        }
+        .report-info {
+            flex: 1;
+        }
+        .report-name {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        .report-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .download-button {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 0.6rem 1.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .download-button img {
+            filter: brightness(0) invert(1);
+            transition: filter 0.3s;
+            width: 1.2em;
+            height: 1.2em;
+            margin-right: 0.5em;
+        }
+        .download-button:hover {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+        .download-button:hover img {
+            filter: none;
+        }
+        .no-reports {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .upload-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border-radius: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .upload-link:hover {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.15);
+        }
+        .modal-title {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        .modal-button {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 0.6rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.9rem;
+        }
+        .modal-button.primary {
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+        }
+        .modal-button.primary:hover {
+            background: #333;
+        }
+        .modal-button.secondary {
+            background: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+        }
+        .modal-button.secondary:hover {
+            background: #f5f5f5;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        @media (max-width: 600px) {
+            .batch-link {
+                font-size: 1.3rem;
+                left: 1rem;
+                top: 1rem;
+            }
+            .reports-title {
+                font-size: 1.5rem;
+            }
+            .reports-container {
+                margin-top: 5rem;
+            }
+            .report-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .download-button {
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-buttons">
+            <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
+            <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
+        </div>
+    </nav>
+    <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
+    
+    <div class="reports-container">
+        <h1 class="reports-title">Your Reports</h1>
+        <div class="reports-list" id="reportsList">
+            <!-- Reports will be loaded here dynamically -->
+            <div class="no-reports" id="noReports">
+                <p>You don't have any reports yet.</p>
+                <a href="{{ url_for('upload_page') }}" class="upload-link">Upload Data</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Modal -->
+    <div id="downloadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 class="modal-title">Download Report</h2>
+            <div class="modal-body">
+                <p>Click the button below to download your report.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDownload" class="modal-button secondary">Cancel</button>
+                <button id="confirmDownload" class="modal-button primary">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Function to load reports
+        async function loadReports() {
+            try {
+                const response = await fetch('/reports');
+                if (!response.ok) {
+                    throw new Error('Failed to load reports');
+                }
+                
+                const reports = await response.json();
+                const reportsList = document.getElementById('reportsList');
+                const noReports = document.getElementById('noReports');
+                
+                if (reports.length === 0) {
+                    noReports.style.display = 'block';
+                    return;
+                }
+                
+                noReports.style.display = 'none';
+                reportsList.innerHTML = '';
+                
+                reports.forEach(report => {
+                    const reportItem = document.createElement('div');
+                    reportItem.className = 'report-item';
+                    reportItem.innerHTML = `
+                        <div class="report-info">
+                            <div class="report-name">${report.filename}</div>
+                            <div class="report-date">Generated: ${formatDate(report.created_at)}</div>
+                        </div>
+                        <button class="download-button" data-filename="${report.filename}">
+                            <img src="/static/icons/download.svg" alt="Download">
+                            Download
+                        </button>
+                    `;
+                    reportsList.appendChild(reportItem);
+                });
+                
+                // Add event listeners to download buttons
+                document.querySelectorAll('.download-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const filename = this.getAttribute('data-filename');
+                        showDownloadModal(filename);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                const reportsList = document.getElementById('reportsList');
+                reportsList.innerHTML = `
+                    <div class="no-reports">
+                        <p>Error loading reports. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to show download modal
+        function showDownloadModal(filename) {
+            const modal = document.getElementById('downloadModal');
+            const confirmButton = document.getElementById('confirmDownload');
+            
+            modal.style.display = 'block';
+            
+            confirmButton.onclick = function() {
+                modal.style.display = 'none';
+                window.location.href = `/download/${filename}`;
+            };
+            
+            document.getElementById('closeModal').onclick = function() {
+                modal.style.display = 'none';
+            };
+            
+            document.getElementById('cancelDownload').onclick = function() {
+                modal.style.display = 'none';
+            };
+            
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+        
+        // Load reports when page loads
+        document.addEventListener('DOMContentLoaded', loadReports);
+    </script>
+</body>
+</html>

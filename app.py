@@ -192,9 +192,11 @@ def generate_report():
     async def _generate():
         try:
             # Get the latest uploaded file for the current user
+            logger.debug(f"Getting latest upload for user: {session.get('user')}")
             result = supabase.table('uploads').select('*').eq('user_id', session['user']).order('created_at', desc=True).limit(1).execute()
             
             if not result.data:
+                logger.warning("No files found for user")
                 return jsonify({
                     'success': False,
                     'message': 'No files found. Please upload an Excel file first.'
@@ -204,8 +206,11 @@ def generate_report():
             excel_path = latest_upload['file_path']
             upload_id = latest_upload['id']
             
+            logger.debug(f"Found latest upload: {excel_path} (ID: {upload_id})")
+            
             # Verify file exists
             if not os.path.exists(excel_path):
+                logger.error(f"File not found at path: {excel_path}")
                 return jsonify({
                     'success': False,
                     'message': 'Uploaded file not found. Please try uploading again.'
@@ -213,33 +218,58 @@ def generate_report():
             
             # Parse the Excel file
             try:
+                logger.debug(f"Parsing Excel file: {excel_path}")
                 student_list = read_student_data_from_excel(excel_path)
                 logger.debug(f"Successfully parsed {len(student_list)} students from {excel_path}")
                 
                 # Initialize services
+                logger.debug("Initializing ReportGenerationService")
                 report_service = ReportGenerationService()
                 
                 # Generate reports
+                logger.debug(f"Generating reports for {len(student_list)} students")
                 reports = await report_service.generate_reports(student_list)
+                logger.debug(f"Successfully generated {len(reports)} reports")
                 
                 # Create Word document
+                logger.debug("Creating Word document")
                 output_path = await report_service.create_word_doc(reports)
+                logger.debug(f"Word document created at: {output_path}")
                 
                 # Upload to storage
+                logger.debug(f"Uploading document to storage")
                 output_url = await storage_service.upload_file(output_path, user_id=session['user'])
+                logger.debug(f"Document uploaded, URL: {output_url}")
                 
                 # Update usage tracking
+                logger.debug(f"Updating usage records")
                 await usage_service.update_upload_record(upload_id, len(student_list), output_url)
                 await usage_service.increment_usage(session['user'])
+                logger.debug(f"Usage records updated")
                 
                 # Clean up temporary file
-                os.remove(output_path)
+                try:
+                    os.remove(output_path)
+                    logger.debug(f"Temporary file removed: {output_path}")
+                except Exception as cleanup_error:
+                    logger.warning(f"Failed to remove temporary file: {str(cleanup_error)}")
+                
+                filename = output_url.split('/')[-1]
+                logger.debug(f"Report generation complete. Filename: {filename}")
                 
                 return jsonify({
                     'success': True,
                     'message': f'Successfully generated reports for {len(student_list)} students',
-                    'download_url': output_url
+                    'download_url': output_url,
+                    'filename': filename
                 })
+                
+            except openpyxl.utils.exceptions.InvalidFileException as e:
+                logger.error(f"Invalid Excel file: {str(e)}")
+                return jsonify({
+                    'success': False,
+                    'message': f'Invalid Excel file format. Please ensure you are uploading a valid .xlsx file.'
+                }), 400
                 
             except ReportGenerationError as e:
                 logger.error(f"Report generation error: {str(e)}")
@@ -263,20 +293,27 @@ def generate_report():
                 }), 500
                 
             except Exception as e:
-                logger.error(f"Unexpected error in generate_report: {str(e)}")
+                logger.error(f"Unexpected error in report generation: {str(e)}", exc_info=True)
                 return jsonify({
                     'success': False,
-                    'message': 'An unexpected error occurred. Please try again.'
+                    'message': 'An unexpected error occurred during report generation. Please try again.'
                 }), 500
                 
         except Exception as e:
-            logger.error(f"Unexpected error in generate_report: {str(e)}")
+            logger.error(f"Unexpected error in generate_report: {str(e)}", exc_info=True)
             return jsonify({
                 'success': False,
                 'message': 'An unexpected error occurred. Please try again.'
             }), 500
 
-    return asyncio.run(_generate())
+    try:
+        return asyncio.run(_generate())
+    except Exception as e:
+        logger.error(f"Error running async function: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': 'Server error occurred. Please try again later.'
+        }), 500
 
 @app.route('/download/<filename>')
 @login_required
@@ -341,6 +378,54 @@ def download_file(filename):
             return jsonify({"error": "Failed to download file"}), 500
 
     return asyncio.run(_download())
+
+@app.route('/reports')
+@login_required
+def list_reports():
+    """List all reports generated by the current user"""
+    try:
+        # Get the user ID from the session
+        user_id = session.get('user')
+        if not user_id:
+            return jsonify({"error": "User not authenticated"}), 401
+
+        # Query the uploads table for this user's uploads that have reports
+        logger.debug(f"Querying uploads table for user_id: {user_id}")
+        result = supabase.table('uploads').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
+        
+        logger.debug(f"Found {len(result.data)} uploads for user")
+        
+        reports = []
+        for upload in result.data:
+            logger.debug(f"Upload record: {upload}")
+            # Only check for output_file_url which exists in the table
+            output_url = upload.get('output_file_url')
+            logger.debug(f"Output URL for upload {upload['id']}: {output_url}")
+            
+            # If we have a completed report with an output URL
+            if output_url:
+                filename = output_url.split('/')[-1]
+                logger.debug(f"Adding report with filename: {filename}")
+                reports.append({
+                    'id': upload['id'],
+                    'filename': filename,
+                    'created_at': upload['created_at'],
+                    'download_url': f"/download/{filename}"
+                })
+            else:
+                logger.debug(f"Skipping upload {upload['id']} - no output URL found")
+        
+        logger.debug(f"Returning {len(reports)} reports")
+        return jsonify(reports)
+    except Exception as e:
+        logger.error(f"Error listing reports: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/reports/view')
+@login_required
+def view_reports():
+    """View page for listing and downloading reports"""
+    return render_template('reports.html')
 
 @app.route('/static/download_handler.js')
 def serve_download_handler():
