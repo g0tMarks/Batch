@@ -364,10 +364,7 @@ def download_file(filename):
                 download_path,
                 as_attachment=True,
                 download_name=filename,
-                mimetype=mime_type,
-                etag=False,
-                cache_timeout=0,
-                conditional=True
+                mimetype=mime_type
             )
 
         except StorageError as e:
