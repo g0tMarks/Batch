@@ -21,6 +21,13 @@
             font-style: normal;
             font-display: swap;
         }
+        @font-face {
+            font-family: 'Test Soehne Breit Leicht';
+            src: url('/static/fonts/test-soehne-breit-leicht.woff2') format('woff2');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
         html, body {
             height: 100%;
         }
@@ -84,9 +91,54 @@
             letter-spacing: -0.03em;
             line-height: 1;
         }
+        .centerpiece .subheadline {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.9vw;
+            font-weight: 300;
+            margin: 1rem 0 0 0;
+            color: #000;
+            letter-spacing: 0.2em;
+            line-height: 1.2;
+            opacity: 0.8;
+        }
+        .body-content {
+            max-width: 500px;
+            margin: 4rem 0 0 4rem;
+            padding: 0;
+            text-align: left;
+        }
+        .body-content p {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.1rem;
+            font-weight: normal;
+            line-height: 1.6;
+            color: #000;
+            margin-bottom: 1.5rem;
+        }
+        .body-content .highlight {
+            font-family: 'Test Soehne Breit Fett', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: block;
+            margin: 2rem 0;
+            text-align: left;
+        }
         @media (max-width: 600px) {
             .centerpiece h1 {
                 font-size: 16vw;
+            }
+            .centerpiece .subheadline {
+                font-size: 3.2vw;
+            }
+            .body-content {
+                margin: 3rem auto 0 auto;
+                padding: 0 1.5rem;
+            }
+            .body-content p {
+                font-size: 1rem;
+            }
+            .body-content .highlight {
+                font-size: 1.1rem;
             }
             .navbar {
                 top: 1rem;
@@ -110,6 +162,15 @@
     </nav>
     <div class="centerpiece">
         <h1>BATCH</h1>
+        <p class="subheadline">Tailored Reports - Simplified</p>
+    </div>
+    
+    <div class="body-content">
+        <p>As teachers, we've all been there—burning the midnight oil to finish student reports. We gather assessment data, observations, anecdotes, and notes, then spend hours turning it all into thoughtful, individualised reports—one student at a time.</p>
+        
+        <span class="highlight">Not anymore.</span>
+        
+        <p>Batch cuts that workload by over 50%, generating accurate, personalised reports that match your tone and structure. Just upload a spreadsheet with your student data and a sample report from last year - then let Batch do the heavy lifting.</p>
     </div>
 </body>
 </html>
