@@ -28,6 +28,13 @@
             font-style: normal;
             font-display: swap;
         }
+        @font-face {
+            font-family: 'Helvetica Neue Light';
+            src: url('/static/fonts/HelveticaNeueLight.otf') format('opentype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
         html, body {
             height: 100%;
         }
@@ -77,68 +84,101 @@
             color: #fff;
             text-decoration: none;
         }
+        .batch-link {
+            position: absolute;
+            top: 2rem;
+            left: 20rem;
+            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
+            font-size: 2rem;
+            color: #000;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            z-index: 20;
+            transition: color 0.2s;
+        }
+        .batch-link:hover {
+            color: #222;
+            transform: scale(1.3);
+            transition: transform 0.2s ease;
+        }
         .centerpiece {
             width: 100vw;
-            text-align: center;
+            text-align: left;
             margin-top: 7rem;
+            padding: 0 4rem;
         }
         .centerpiece h1 {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 5vw;
+            font-weight: light;
+            margin: 0 15rem 0 15rem;
+            color: #000;
+            letter-spacing: 0.14em;
+            line-height: 1;
+        }
+
+        .centerpiece h2 {
             font-family: 'Test Soehne Breit Fett', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-size: 10vw;
             font-weight: bold;
-            margin: 0;
+            margin: 0 15rem 0 15rem;
             color: #000;
             letter-spacing: -0.03em;
             line-height: 1;
         }
         .centerpiece .subheadline {
             font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1.9vw;
+            font-size: 1.2vw;
             font-weight: 300;
-            margin: 1rem 0 0 0;
+            margin: 2rem 15rem 0 15rem;
             color: #000;
-            letter-spacing: 0.2em;
+            letter-spacing: 0em;
             line-height: 1.2;
             opacity: 0.8;
+            max-width: 60vw;
         }
         .body-content {
             max-width: 500px;
-            margin: 4rem 0 0 4rem;
+            margin: 5rem 15rem 0 15rem;
             padding: 0;
             text-align: left;
         }
         .body-content p {
-            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1.1rem;
-            font-weight: normal;
-            line-height: 1.6;
+            font-family: 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 2rem;
+            font-weight: 300;
+            line-height: 1.4;
             color: #000;
             margin-bottom: 1.5rem;
         }
         .body-content .highlight {
             font-family: 'Test Soehne Breit Fett', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 2rem;
             display: block;
             margin: 2rem 0;
             text-align: left;
         }
         @media (max-width: 600px) {
             .centerpiece h1 {
+                font-size: 8vw;
+            }
+            .centerpiece h2 {
                 font-size: 16vw;
             }
             .centerpiece .subheadline {
                 font-size: 3.2vw;
+                max-width: 80vw;
             }
             .body-content {
-                margin: 3rem auto 0 auto;
-                padding: 0 1.5rem;
+                margin: 3rem 1.5rem 0 1.5rem;
+                padding: 0;
             }
             .body-content p {
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
             .body-content .highlight {
-                font-size: 1.1rem;
+                font-size: 1.3rem;
             }
             .navbar {
                 top: 1rem;
@@ -150,10 +190,16 @@
             .centerpiece {
                 margin-top: 4.5rem;
             }
+            .batch-link {
+                font-size: 1.3rem;
+                left: 1.5rem;
+                top: 1rem;
+            }
         }
     </style>
 </head>
 <body>
+    <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
     <nav class="navbar">
         <div class="nav-buttons">
             <a href="{{ url_for('login') }}" class="nav-btn{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
@@ -161,16 +207,19 @@
         </div>
     </nav>
     <div class="centerpiece">
-        <h1>BATCH</h1>
-        <p class="subheadline">Tailored Reports - Simplified</p>
+        <h1>Tailored reports</h1>
+        <h2>simplified</h2>
+        <p class="subheadline">The most painful part of teaching? Doing the same task 30 times with different output. </p>
     </div>
     
     <div class="body-content">
-        <p>As teachers, we've all been there—burning the midnight oil to finish student reports. We gather assessment data, observations, anecdotes, and notes, then spend hours turning it all into thoughtful, individualised reports—one student at a time.</p>
+        <p>Writing reports is like baking 30 unique cookies—one at a time.</p>
         
         <span class="highlight">Not anymore.</span>
         
-        <p>Batch cuts that workload by over 50%, generating accurate, personalised reports that match your tone and structure. Just upload a spreadsheet with your student data and a sample report from last year - then let Batch do the heavy lifting.</p>
+        <p>Batch is a tool that cuts your report-writing time in half—without sacrificing quality or personalisation. Just fill in a spreadsheet with student data and a sample report in your tone. Batch does the heavy lifting, combining everything into well-crafted, individualised reports in your voice.</p>
+
+        <span class="highlight"> 3 clicks. 30 reports per minute.</span>
     </div>
 </body>
 </html>
