@@ -108,6 +108,30 @@ Other important information to include 1 sentence on:
             logger.error(f"Error generating batch reports: {str(e)}")
             raise ReportGenerationError(f"Error generating batch reports: {str(e)}")
 
+    async def generate_reports_with_progress(self, student_list: List[Dict[str, Any]], user_id: str, progress_tracker: dict) -> List[str]:
+        """Generate reports for multiple students with progress tracking"""
+        try:
+            logger.info(f"Starting batch report generation for {len(student_list)} students")
+            reports = []
+            for i, student in enumerate(student_list, 1):
+                # Update progress
+                progress_tracker[user_id] = {
+                    'current': i,
+                    'total': len(student_list),
+                    'status': f'Generating report {i}/{len(student_list)}',
+                    'progress': int((i / len(student_list)) * 90)  # Reserve 10% for final steps
+                }
+                
+                report = await self.generate_single_report(student)
+                reports.append(report)
+                logger.debug(f"Generated report {i}/{len(student_list)}")
+                
+            logger.info(f"Successfully generated {len(reports)} reports")
+            return reports
+        except Exception as e:
+            logger.error(f"Error generating batch reports: {str(e)}")
+            raise ReportGenerationError(f"Error generating batch reports: {str(e)}")
+
     async def create_word_doc(self, reports: List[str], output_dir: str = "/tmp/reports") -> str:
         """Create a Word document containing all reports"""
         try:
