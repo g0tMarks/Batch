@@ -18,6 +18,9 @@ import asyncio
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Global progress tracking
+progress_tracker = {}
+
 def ensure_uploads_table():
     try:
         # Check if table exists
@@ -178,6 +181,21 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('index'))
 
+@app.route('/progress')
+@login_required
+def get_progress():
+    """Get the current progress of report generation for the user"""
+    user_id = session.get('user')
+    if user_id in progress_tracker:
+        return jsonify(progress_tracker[user_id])
+    else:
+        return jsonify({
+            'current': 0,
+            'total': 0,
+            'status': 'No active generation',
+            'progress': 0
+        })
+
 class ExcelParsingError(Exception):
     """Custom exception for Excel parsing errors"""
     pass
@@ -191,9 +209,19 @@ class FileNotFoundError(Exception):
 def generate_report():
     async def _generate():
         try:
+            user_id = session.get('user')
+            
+            # Initialize progress tracking
+            progress_tracker[user_id] = {
+                'current': 0,
+                'total': 0,
+                'status': 'Starting...',
+                'progress': 0
+            }
+            
             # Get the latest uploaded file for the current user
-            logger.debug(f"Getting latest upload for user: {session.get('user')}")
-            result = supabase.table('uploads').select('*').eq('user_id', session['user']).order('created_at', desc=True).limit(1).execute()
+            logger.debug(f"Getting latest upload for user: {user_id}")
+            result = supabase.table('uploads').select('*').eq('user_id', user_id).order('created_at', desc=True).limit(1).execute()
             
             if not result.data:
                 logger.warning("No files found for user")
@@ -222,29 +250,43 @@ def generate_report():
                 student_list = read_student_data_from_excel(excel_path)
                 logger.debug(f"Successfully parsed {len(student_list)} students from {excel_path}")
                 
+                # Update progress with total count
+                progress_tracker[user_id] = {
+                    'current': 0,
+                    'total': len(student_list),
+                    'status': 'Generating reports...',
+                    'progress': 0
+                }
+                
                 # Initialize services
                 logger.debug("Initializing ReportGenerationService")
                 report_service = ReportGenerationService()
                 
-                # Generate reports
+                # Generate reports with progress tracking
                 logger.debug(f"Generating reports for {len(student_list)} students")
-                reports = await report_service.generate_reports(student_list)
+                reports = await report_service.generate_reports_with_progress(student_list, user_id, progress_tracker)
                 logger.debug(f"Successfully generated {len(reports)} reports")
+                
+                # Update progress for document creation
+                progress_tracker[user_id]['status'] = 'Creating document...'
                 
                 # Create Word document
                 logger.debug("Creating Word document")
                 output_path = await report_service.create_word_doc(reports)
                 logger.debug(f"Word document created at: {output_path}")
                 
+                # Update progress for upload
+                progress_tracker[user_id]['status'] = 'Uploading...'
+                
                 # Upload to storage
                 logger.debug(f"Uploading document to storage")
-                output_url = await storage_service.upload_file(output_path, user_id=session['user'])
+                output_url = await storage_service.upload_file(output_path, user_id=user_id)
                 logger.debug(f"Document uploaded, URL: {output_url}")
                 
                 # Update usage tracking
                 logger.debug(f"Updating usage records")
                 await usage_service.update_upload_record(upload_id, len(student_list), output_url)
-                await usage_service.increment_usage(session['user'])
+                await usage_service.increment_usage(user_id)
                 logger.debug(f"Usage records updated")
                 
                 # Clean up temporary file
@@ -256,6 +298,14 @@ def generate_report():
                 
                 filename = output_url.split('/')[-1]
                 logger.debug(f"Report generation complete. Filename: {filename}")
+                
+                # Mark as complete
+                progress_tracker[user_id] = {
+                    'current': len(student_list),
+                    'total': len(student_list),
+                    'status': 'Complete',
+                    'progress': 100
+                }
                 
                 return jsonify({
                     'success': True,
