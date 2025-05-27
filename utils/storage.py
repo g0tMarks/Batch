@@ -128,11 +128,22 @@ class StorageService:
             logger.error(f"Error in download_file: {str(e)}")
             raise StorageError(f"Error downloading file from storage: {str(e)}")
 
-    def delete_file(self, filename: str, bucket: str = "documents") -> None:
+    async def delete_file(self, filename: str, bucket: str = "documents", user_id: str = None) -> None:
         """Delete a file from Supabase storage asynchronously"""
         try:
-            self.supabase.storage.from_(bucket).remove([filename])
+            if not user_id:
+                raise StorageError("User ID is required for file deletion")
+            
+            # Create the full storage path
+            storage_path = f"{user_id}/{filename}"
+            logger.debug(f"Attempting to delete file: {storage_path}")
+            
+            # Delete the file from storage
+            self.supabase.storage.from_(bucket).remove([storage_path])
+            logger.debug(f"Successfully deleted file: {storage_path}")
+            
         except Exception as e:
+            logger.error(f"Error deleting file {storage_path}: {str(e)}")
             raise StorageError(f"Error deleting file from storage: {str(e)}")
 
 # Create a singleton instance

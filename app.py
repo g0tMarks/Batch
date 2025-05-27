@@ -296,7 +296,7 @@ def generate_report():
                 except Exception as cleanup_error:
                     logger.warning(f"Failed to remove temporary file: {str(cleanup_error)}")
                 
-                filename = output_url.split('/')[-1]
+                filename = output_url.split('/')[-1].split('?')[0]
                 logger.debug(f"Report generation complete. Filename: {filename}")
                 
                 # Mark as complete
@@ -473,6 +473,56 @@ def list_reports():
 def view_reports():
     """View page for listing and downloading reports"""
     return render_template('reports.html')
+
+@app.route('/reports/<report_id>', methods=['DELETE'])
+@login_required
+def delete_report(report_id):
+    """Delete a specific report"""
+    async def _delete():
+        try:
+            # Get the user ID from the session
+            user_id = session.get('user')
+            if not user_id:
+                return jsonify({"error": "User not authenticated"}), 401
+
+            # First, get the report details to verify ownership and get the file URL
+            logger.debug(f"Attempting to delete report {report_id} for user {user_id}")
+            result = supabase.table('uploads').select('*').eq('id', report_id).eq('user_id', user_id).execute()
+            
+            if not result.data:
+                logger.warning(f"Report {report_id} not found for user {user_id}")
+                return jsonify({"error": "Report not found"}), 404
+            
+            report = result.data[0]
+            output_url = report.get('output_file_url')
+            
+            # Delete the file from storage if it exists
+            if output_url:
+                try:
+                    filename = output_url.split('/')[-1]
+                    logger.debug(f"Attempting to delete file from storage: {filename}")
+                    # Use the storage service to delete the file
+                    await storage_service.delete_file(filename, user_id=user_id)
+                    logger.debug(f"Successfully deleted file from storage: {filename}")
+                except Exception as storage_error:
+                    logger.warning(f"Failed to delete file from storage: {str(storage_error)}")
+                    # Continue with database deletion even if storage deletion fails
+            
+            # Delete the record from the database
+            logger.debug(f"Deleting report record from database: {report_id}")
+            delete_result = supabase.table('uploads').delete().eq('id', report_id).eq('user_id', user_id).execute()
+            
+            # Supabase delete operations return empty data array on success
+            # Check if there was no error rather than checking for data
+            logger.debug(f"Delete result: {delete_result}")
+            logger.debug(f"Successfully deleted report {report_id}")
+            return jsonify({"message": "Report deleted successfully"}), 200
+                
+        except Exception as e:
+            logger.error(f"Error deleting report {report_id}: {str(e)}", exc_info=True)
+            return jsonify({"error": "Internal server error"}), 500
+
+    return asyncio.run(_delete())
 
 @app.route('/static/download_handler.js')
 def serve_download_handler():
