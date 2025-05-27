@@ -33,7 +33,7 @@ class ReportGenerationService:
             temperature=0.4
         )
         self.prompt_template = PromptTemplate(
-            input_variables=["student_name", "year", "gender", "academic_performance", 
+            input_variables=["student_name", "year", "gender", "adjectives", "academic_performance", 
                            "extracurricular_activities", "other", "sample_report"],
             template="""You are an experienced and caring high school teacher, your job is to write a report for students in your Home Group that comments on their academic performance, their wellbeing and their involvement in extracurricular activities.
 
@@ -41,7 +41,7 @@ Use this sample report below as a template.
 
 {sample_report}
 
-It is very important that you follow the template above, using the same structure, tone, language and length. You can vary adjectives in the closing sentence but keep the opening sentence the same. It must be written in Australian English.
+It is very important that you follow the template above, using the same structure, tone, language and length. You must use adjectives such as {adjectives} in the opening sentence. You can vary adjectives in the closing sentence. It must be written in Australian English.
 
 Write a report for {student_name}.
 
