@@ -113,22 +113,66 @@ Other important information to include 1 sentence on:
         try:
             logger.info(f"Starting batch report generation for {len(student_list)} students")
             reports = []
+            failed_reports = []
+            
             for i, student in enumerate(student_list, 1):
-                # Update progress
-                progress_tracker[user_id] = {
-                    'current': i,
-                    'total': len(student_list),
-                    'status': f'Generating report {i}/{len(student_list)}',
-                    'progress': int((i / len(student_list)) * 90)  # Reserve 10% for final steps
-                }
+                try:
+                    # Update progress before generating each report
+                    progress_tracker[user_id] = {
+                        'current': i - 1,  # Show previous completed count
+                        'total': len(student_list),
+                        'status': f'Generating report {i}/{len(student_list)}',
+                        'progress': int(((i - 1) / len(student_list)) * 90)  # Reserve 10% for final steps
+                    }
+                    
+                    report = await self.generate_single_report(student)
+                    reports.append(report)
+                    
+                    # Update progress after successful generation
+                    progress_tracker[user_id] = {
+                        'current': i,
+                        'total': len(student_list),
+                        'status': f'Generated report {i}/{len(student_list)}',
+                        'progress': int((i / len(student_list)) * 90)
+                    }
+                    
+                    logger.debug(f"Generated report {i}/{len(student_list)} for {student.get('student_name', 'unknown')}")
+                    
+                    # Add a small delay to avoid rate limiting
+                    await asyncio.sleep(0.5)
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to generate report for student {student.get('student_name', 'unknown')}: {str(e)}")
+                    failed_reports.append(student.get('student_name', f'Student {i}'))
+                    # Add a placeholder report for failed generation
+                    reports.append(f"Report generation failed for {student.get('student_name', f'Student {i}')}. Error: {str(e)}")
+                    
+                    # Update progress to show we've processed this student (even if failed)
+                    progress_tracker[user_id] = {
+                        'current': i,
+                        'total': len(student_list),
+                        'status': f'Processed {i}/{len(student_list)} (some errors)',
+                        'progress': int((i / len(student_list)) * 90)
+                    }
+                    
+                    # Add a longer delay after an error to avoid further rate limiting
+                    await asyncio.sleep(2.0)
                 
-                report = await self.generate_single_report(student)
-                reports.append(report)
-                logger.debug(f"Generated report {i}/{len(student_list)}")
-                
-            logger.info(f"Successfully generated {len(reports)} reports")
+            if failed_reports:
+                logger.warning(f"Failed to generate reports for {len(failed_reports)} students: {failed_reports}")
+            
+            logger.info(f"Successfully generated {len(reports) - len(failed_reports)}/{len(reports)} reports")
             return reports
+            
         except Exception as e:
+            # Set error state in progress tracker
+            progress_tracker[user_id] = {
+                'current': 0,
+                'total': len(student_list),
+                'status': 'Error occurred during generation',
+                'progress': 0,
+                'error': str(e)
+            }
             logger.error(f"Error generating batch reports: {str(e)}")
             raise ReportGenerationError(f"Error generating batch reports: {str(e)}")
 

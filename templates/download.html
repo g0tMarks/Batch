@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATCH - Download Template</title>
+    <style>
+        @font-face {
+            font-family: 'Test Soehne Breit Fett';
+            src: url('/static/fonts/test-soehne-breit-fett.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-fett.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Test Soehne Breit Buch';
+            src: url('/static/fonts/test-soehne-breit-buch.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-buch.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Test Soehne Breit Leicht';
+            src: url('/static/fonts/test-soehne-breit-leicht.woff2') format('woff2'),
+                 url('/static/fonts/test-soehne-breit-leicht.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Helvetica Neue Light';
+            src: url('/static/fonts/HelveticaNeueLight.otf') format('opentype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #faf7ef;
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .navbar {
+            position: absolute;
+            top: 2rem;
+            left: 0;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .nav-btn {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            outline: none;
+            border-radius: 2rem;
+            padding: 0.7rem 2.2rem;
+            cursor: pointer;
+            background: #f3f1eb;
+            color: #000;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: none;
+            text-decoration: none;
+        }
+        .nav-btn.active, .nav-btn:focus {
+            background: #000;
+            color: #fff;
+        }
+        .nav-btn:hover {
+            background: #000;
+            color: #fff;
+            text-decoration: none;
+        }
+        .batch-link {
+            position: absolute;
+            top: 2rem;
+            left: 20rem;
+            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
+            font-size: 2rem;
+            color: #000;
+            text-decoration: none;
+            letter-spacing: 0.03em;
+            z-index: 20;
+            transition: color 0.2s;
+        }
+        .batch-link:hover {
+            color: #222;
+            transform: scale(1.3);
+            transition: transform 0.2s ease;
+        }
+        .download-card {
+            max-width: 700px;
+            margin: 8rem auto 0 auto;
+            background: #f8faff;
+            padding: 3rem 2.5rem 2.5rem 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+            border: 1px solid #ececec;
+            text-align: center;
+        }
+        .download-title {
+            font-family: 'Test Soehne Breit Buch', monospace, sans-serif;
+            font-size: 2.2rem;
+            color: #000;
+            margin-bottom: 0.7rem;
+            letter-spacing: 0.03em;
+            text-align: center;
+            font-weight: normal;
+        }
+        .download-subtitle {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        .instructions-section {
+            text-align: left;
+            margin-bottom: 2.5rem;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid #e8e8e8;
+        }
+        .instructions-title {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.3rem;
+            color: #000;
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+        }
+        .instructions-list {
+            font-family: 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+        .instructions-list li {
+            margin-bottom: 0.8rem;
+        }
+        .instructions-list li strong {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #000;
+        }
+        .download-button {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            border: 1px solid #000;
+            color: #fff;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            min-width: 280px;
+            height: 50px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .download-button img {
+            filter: brightness(0) invert(1);
+            transition: filter 0.3s;
+            margin-right: 0.7rem;
+        }
+        .download-button:hover {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .download-button:hover img {
+            filter: none;
+        }
+        .download-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .next-steps {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e8e8e8;
+        }
+        .next-steps-text {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        .upload-link {
+            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: transparent;
+            border: 1px solid #000;
+            color: #000;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            min-width: 200px;
+            height: 40px;
+            line-height: 1;
+        }
+        .upload-link img {
+            filter: none;
+            margin-right: 0.5rem;
+        }
+        .upload-link:hover {
+            background: #000;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .upload-link:hover img {
+            filter: brightness(0) invert(1);
+        }
+        .status-message {
+            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        @media (max-width: 600px) {
+            .download-card {
+                margin-top: 5rem;
+                padding: 2rem 1rem 1.5rem 1rem;
+                max-width: 95%;
+            }
+            .batch-link {
+                font-size: 1.3rem;
+                left: 1rem;
+                top: 1rem;
+            }
+            .download-title {
+                font-size: 1.6rem;
+            }
+            .download-subtitle {
+                font-size: 1rem;
+            }
+            .instructions-section {
+                padding: 1.5rem;
+            }
+            .download-button {
+                min-width: 250px;
+                font-size: 1rem;
+                padding: 0.9rem 2rem;
+            }
+            .upload-link {
+                min-width: 180px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-buttons">
+            <a href="{{ url_for('download_template') }}" class="nav-btn active">DOWNLOAD</a>
+            <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
+            <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
+        </div>
+    </nav>
+    <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
+    
+    <div class="download-card">
+        <div class="download-title">Download Template</div>
+        <div class="download-subtitle">Get started by downloading the Excel template for your student data</div>
+        
+        <div class="instructions-section">
+            <div class="instructions-title">How to use the template:</div>
+            <ol class="instructions-list">
+                <li><strong>Download</strong> the Excel template using the button below</li>
+                <li><strong>Fill in student data</strong> including names, and any àdditional comments</li>
+                <li><strong>Include sample reports</strong> you've written in the past to help the LLM understand your writing style</li>
+                <li><strong>Save the file</strong> and upload it using the Upload page</li>
+                <li><strong>Generate reports</strong> and let Batch create personalised reports for all your students</li>
+            </ol>
+        </div>
+        
+        <button id="downloadButton" class="download-button" onclick="downloadTemplate()">
+            <img src="{{ url_for('static', filename='icons/download.svg') }}" alt="Download" style="width: 1.3em; height: 1.3em;">
+            Download Excel Template
+        </button>
+        
+        <div id="statusMessage" class="status-message"></div>
+        
+        <div class="next-steps">
+            <div class="next-steps-text">Once you've filled in the template, upload it to generate your reports:</div>
+            <a href="{{ url_for('upload_page') }}" class="upload-link">
+                <img src="{{ url_for('static', filename='icons/upload.svg') }}" alt="Upload" style="width: 1.1em; height: 1.1em;">
+                Go to Upload
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function downloadTemplate() {
+            const button = document.getElementById('downloadButton');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Disable button and show loading state
+            button.disabled = true;
+            button.innerHTML = `
+                <span style="display: inline-block; width: 1.3em; height: 1.3em; margin-right: 0.7rem;">
+                    <div style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 1.3em; height: 1.3em; animation: spin 1s linear infinite;"></div>
+                </span>
+                Downloading...
+            `;
+            
+            // Hide any previous status messages
+            statusMessage.style.display = 'none';
+            statusMessage.className = 'status-message';
+            
+            // Make the download request
+            fetch('/download-template', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'template_student_data.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                // Show success message
+                statusMessage.textContent = 'Template downloaded successfully!';
+                statusMessage.className = 'status-message success';
+                statusMessage.style.display = 'block';
+                
+                // Reset button
+                resetButton();
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                
+                // Show error message
+                statusMessage.textContent = 'Failed to download template. Please try again.';
+                statusMessage.className = 'status-message error';
+                statusMessage.style.display = 'block';
+                
+                // Reset button
+                resetButton();
+            });
+        }
+        
+        function resetButton() {
+            const button = document.getElementById('downloadButton');
+            button.disabled = false;
+            button.innerHTML = `
+                <img src="{{ url_for('static', filename='icons/download.svg') }}" alt="Download" style="width: 1.3em; height: 1.3em; filter: brightness(0) invert(1);">
+                Download Excel Template
+            `;
+        }
+        
+        // Add CSS for loading spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
