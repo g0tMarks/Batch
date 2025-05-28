@@ -109,7 +109,7 @@ def login():
             })
             if result.user.email_confirmed_at:
                 session['user'] = result.user.id
-                return redirect(url_for('upload_page'))
+                return redirect(url_for('download_template'))
             else:
                 return render_template('login.html', error="Please verify your email before continuing.")
         except Exception as e:
@@ -123,6 +123,48 @@ def login_required(f):
             return redirect('/login')
         return f(*args, **kwargs)
     return wrapper
+
+@app.route('/download-template')
+@login_required
+def download_template():
+    """Download template page"""
+    return render_template('download.html')
+
+@app.route('/download-template', methods=['GET'])
+@login_required
+def download_template_file():
+    """Download the Excel template file from Supabase storage"""
+    async def _download_template():
+        try:
+            user_id = session.get('user')
+            if not user_id:
+                return jsonify({"error": "User not authenticated"}), 401
+
+            # Download the template file from storage
+            try:
+                template_filename = 'template_student_data.xlsx'
+                download_path = await storage_service.download_file(
+                    filename=template_filename,
+                    user_id=user_id,
+                    is_template=True  # Special flag for template files
+                )
+            except StorageError as e:
+                logger.error(f"Error downloading template: {str(e)}")
+                return jsonify({"error": "Template file not found"}), 404
+
+            # Send the file to the user
+            return send_file(
+                download_path,
+                as_attachment=True,
+                download_name='template_student_data.xlsx',
+                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+
+        except Exception as e:
+            logger.error(f"Error during template download: {str(e)}")
+            return jsonify({"error": "Failed to download template"}), 500
+
+    return asyncio.run(_download_template())
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required

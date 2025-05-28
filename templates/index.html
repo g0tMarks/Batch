@@ -387,6 +387,7 @@
     <nav class="navbar">
         <div class="nav-buttons">
             {% if session.user %}
+                <a href="{{ url_for('download_template') }}" class="nav-btn{% if request.endpoint == 'download_template' %} active{% endif %}">DOWNLOAD</a>
                 <a href="{{ url_for('upload_page') }}" class="nav-btn{% if request.endpoint == 'upload_page' %} active{% endif %}">UPLOAD</a>
                 <a href="{{ url_for('view_reports') }}" class="nav-btn{% if request.endpoint == 'view_reports' %} active{% endif %}">REPORTS</a>
                 <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>

@@ -314,8 +314,9 @@
 <body>
     <nav class="navbar">
         <div class="nav-buttons">
+            <a href="{{ url_for('download_template') }}" class="nav-btn">DOWNLOAD</a>
             <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
-            <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
+            <a href="{{ url_for('view_reports') }}" class="nav-btn active">REPORTS</a>
             <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
         </div>
     </nav>

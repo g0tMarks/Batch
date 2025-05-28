@@ -317,7 +317,8 @@
 <body>
     <nav class="navbar">
         <div class="nav-buttons">
-            <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
+            <a href="{{ url_for('download_template') }}" class="nav-btn">DOWNLOAD</a>
+            <a href="{{ url_for('upload_page') }}" class="nav-btn active">UPLOAD</a>
             <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
             <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
         </div>
@@ -451,13 +452,32 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Progress data:', data); // Debug log
+                    
+                    // Reset error count on successful response
+                    window.progressErrorCount = 0;
+                    
+                    // Check for error state in progress data
+                    if (data.error) {
+                        clearInterval(progressInterval);
+                        progressBar.style.width = '100%';
+                        progressBar.style.backgroundColor = '#dc3545';
+                        progressTracker.style.display = 'none';
+                        statusMessage.textContent = 'Error: ' + data.error;
+                        actionButton.disabled = false;
+                        updateButton('generate');
+                        return;
+                    }
+                    
                     if (data.total > 0) {
                         progressBar.style.width = data.progress + '%';
                         progressTracker.textContent = `${data.current}/${data.total}`;
                         progressTracker.style.display = 'block';
                         
-                        // Clear the status message and show just the progress tracker
+                        // Show status with progress tracker
                         statusMessage.innerHTML = '';
+                        if (data.status && data.status.includes('some errors')) {
+                            statusMessage.innerHTML = `<span style="color: #ff8c00;">${data.status}</span><br>`;
+                        }
                         statusMessage.appendChild(progressTracker);
                         
                         if (data.status === 'Complete') {
@@ -471,6 +491,15 @@
                 })
                 .catch(error => {
                     console.error('Error fetching progress:', error);
+                    // Don't immediately fail on network errors - the backend might still be working
+                    // Only stop polling after multiple consecutive failures
+                    if (!window.progressErrorCount) window.progressErrorCount = 0;
+                    window.progressErrorCount++;
+                    
+                    if (window.progressErrorCount >= 5) {
+                        clearInterval(progressInterval);
+                        console.warn('Stopping progress polling due to repeated errors');
+                    }
                 });
         }
 
