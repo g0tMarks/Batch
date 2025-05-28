@@ -130,41 +130,16 @@ def download_template():
     """Download template page"""
     return render_template('download.html')
 
-@app.route('/download-template', methods=['GET'])
+@app.route('/download-template-file')
 @login_required
 def download_template_file():
-    """Download the Excel template file from Supabase storage"""
-    async def _download_template():
-        try:
-            user_id = session.get('user')
-            if not user_id:
-                return jsonify({"error": "User not authenticated"}), 401
-
-            # Download the template file from storage
-            try:
-                template_filename = 'template_student_data.xlsx'
-                download_path = await storage_service.download_file(
-                    filename=template_filename,
-                    user_id=user_id,
-                    is_template=True  # Special flag for template files
-                )
-            except StorageError as e:
-                logger.error(f"Error downloading template: {str(e)}")
-                return jsonify({"error": "Template file not found"}), 404
-
-            # Send the file to the user
-            return send_file(
-                download_path,
-                as_attachment=True,
-                download_name='template_student_data.xlsx',
-                mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-
-        except Exception as e:
-            logger.error(f"Error during template download: {str(e)}")
-            return jsonify({"error": "Failed to download template"}), 500
-
-    return asyncio.run(_download_template())
+    """Download the Excel template from local static directory"""
+    return send_file(
+        'static/files/template_student_data.xlsx',
+        as_attachment=True,
+        download_name='template_student_data.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
