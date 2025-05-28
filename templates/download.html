@@ -314,12 +314,15 @@
         <div class="instructions-section">
             <div class="instructions-title">How to use the template:</div>
             <ol class="instructions-list">
-                <li><strong>Download</strong> the Excel template using the button below</li>
-                <li><strong>Fill in student data</strong> including names, and any àdditional comments</li>
-                <li><strong>Include sample reports</strong> you've written in the past to help the LLM understand your writing style</li>
-                <li><strong>Save the file</strong> and upload it using the Upload page</li>
-                <li><strong>Generate reports</strong> and let Batch create personalised reports for all your students</li>
+                <li><strong>Download</strong> the Excel template using the button below.</li>
+                <li><strong>Fill in student data</strong> including additional comments.</li>
+                <li><strong>Include sample reports</strong> you've written in the past for each student, to help the LLM understand your writing style. The AI Model will follow the exact tone, structure and content in each sample report.</li>
+                <li><strong>Save the file</strong> and upload it using the Upload page.</li>
+                <li><strong>Generate reports</strong> and let Batch create personalised reports for all your students.</li>
             </ol>
+        <div class="testing-section"></div>
+            <div class="testing-title"><strong>Please note:</strong></div>
+                <div class="testing-subtitle">This tool is in the testing phase, and report generation might be delayed. If you encounter any errors, please contact support.</div>
         </div>
         
         <button id="downloadButton" class="download-button" onclick="downloadTemplate()">
@@ -357,7 +360,7 @@
             statusMessage.className = 'status-message';
             
             // Make the download request
-            fetch('/download-template', {
+            fetch('/download-template-file', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
