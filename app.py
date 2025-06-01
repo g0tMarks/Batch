@@ -14,6 +14,9 @@ import openpyxl.utils.exceptions
 from asgiref.wsgi import WsgiToAsgi
 import asyncio
 
+#create uploads directory on boot
+os.makedirs("uploads", exist_ok=True)
+
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -73,6 +76,9 @@ def signup():
         email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirmPassword']
+        school = request.form['school']
+        how_did_you_hear = request.form['howDidYouHear']
+        newsletter = request.form.get('newsletter') == 'yes'  # Checkbox returns 'yes' or None
         
         # Validate passwords match
         if password != confirm_password:
@@ -85,7 +91,10 @@ def signup():
                 "password": password,
                 "options": {
                     "data": {
-                        "full_name": full_name
+                        "full_name": full_name,
+                        "school": school,
+                        "how_did_you_hear": how_did_you_hear,
+                        "newsletter_signup": newsletter
                     }
                 }
             })
