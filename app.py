@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, redirect, session, url_for, flash, render_template, send_file, jsonify
-from supabase_config import supabase
+from supabase_config import supabase, supabase_admin
 from functools import wraps
 import os
 import secrets
@@ -175,7 +175,7 @@ def upload_page():
                 
                 # Store file info in database
                 user_id = session['user']
-                result = supabase.table('uploads').insert({
+                result = supabase_admin.table('uploads').insert({
                     'user_id': user_id,
                     'filename': filename,
                     'file_path': file_path,

@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 from typing import Optional
-from supabase_config import supabase
+from supabase_config import supabase, supabase_admin
 import os
 from supabase import create_client
 
@@ -178,4 +178,4 @@ class UsageTrackingService:
             raise UsageTrackingError(f"Error getting usage stats: {str(e)}")
 
 # Create a singleton instance
-usage_service = UsageTrackingService(supabase)
+usage_service = UsageTrackingService(supabase_admin)
