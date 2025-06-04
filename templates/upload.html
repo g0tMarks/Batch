@@ -675,6 +675,27 @@
         // Handle file input change
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
+            if (file) {
+                const invalidNamePattern = /[\\/:*?"<>|]/;
+                if (invalidNamePattern.test(file.name)) {
+                    alert('File name contains invalid characters. Please rename your file.');
+                    fileInput.value = '';
+                    updateSelectedFile(null);
+                    return;
+                }
+                if (!file.name.endsWith('.xlsx')) {
+                    alert('Only .xlsx files are allowed!');
+                    fileInput.value = '';
+                    updateSelectedFile(null);
+                    return;
+                }
+                if (file.size > 10 * 1024 * 1024) { // 10MB in bytes
+                    alert('File size must be 10MB or less!');
+                    fileInput.value = '';
+                    updateSelectedFile(null);
+                    return;
+                }
+            }
             updateSelectedFile(file);
         });
 

@@ -55,7 +55,7 @@ ensure_uploads_table()
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 ALLOWED_EXTENSIONS = {'xlsx'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
 
 # Create uploads folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -165,9 +165,13 @@ def upload_page():
             print("No selected file")
             return jsonify({'error': 'No selected file'}), 400
 
-        try:
-            # Save the file to disk
-            if file and allowed_file(file.filename):
+        # Server-side file type validation
+        if file and allowed_file(file.filename):
+            # Check MIME type for .xlsx
+            if file.mimetype != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                return jsonify({'error': 'Invalid file type. Only .xlsx files are allowed.'}), 400
+            try:
+                # Save the file to disk
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
@@ -193,12 +197,11 @@ def upload_page():
                     'student_count': student_count,
                     'upload_id': result.data[0]['id'] if result.data else None
                 }), 200
-            else:
-                return jsonify({'error': 'Invalid file type. Only .xlsx files are allowed.'}), 400
-
-        except Exception as e:
-            print("Exception occurred:", e)
-            return jsonify({'error': str(e)}), 500
+            except Exception as e:
+                print("Exception occurred:", e)
+                return jsonify({'error': str(e)}), 500
+        else:
+            return jsonify({'error': 'Invalid file type. Only .xlsx files are allowed.'}), 400
             
     return render_template('upload.html')
 
