@@ -30,7 +30,7 @@
 
 - [ ] Implement (optional) Supabase Storage lifecycle policy
     - [x] 6.1 Set up automatic deletion of files older than 24 hours in the bucket
-    - [ ] 6.2 Test lifecycle policy to ensure old files are deleted
+    - [x] 6.2 Test lifecycle policy to ensure old files are deleted
 
 - [ ] Ensure system supports concurrent uploads and processing
     - [ ] 7.1 Test multiple simultaneous uploads and processing jobs

@@ -76,37 +76,45 @@ def read_student_data_from_excel(file_path: str, sheet_name: str = "Sheet1") -> 
             
         sheet = workbook[sheet_name]
         
-        # Validate header row
-        expected_headers = [
-            'Student Name',
-            'Year',
-            'Gender',
-            'Adjectives',
-            'Academic Performance',
-            'Extracurricular Activities',
-            'Other',
-            'Sample Report'
-        ]
+        # Define expected headers in both formats
+        expected_headers = {
+            'Student Name': 'student_name',
+            'Year': 'year',
+            'Gender': 'gender',
+            'Adjectives': 'adjectives',
+            'Academic Performance': 'academic_performance',
+            'Extracurricular Activities': 'extracurricular_activities',
+            'Other': 'other',
+            'Sample Report': 'sample_report'
+        }
         
-        headers = [cell.value for cell in sheet[1]]
-        if headers != expected_headers:
-            raise ExcelParsingError(f"Invalid headers. Expected: {expected_headers}, Got: {headers}")
+        # Get headers from the file
+        headers = [str(cell.value).strip() if cell.value else '' for cell in sheet[1]]
+        
+        # Create a mapping of actual headers to expected format
+        header_mapping = {}
+        for header in headers:
+            # Try to match the header in either format
+            for expected, normalized in expected_headers.items():
+                if header.lower() == expected.lower() or header.lower() == normalized.lower():
+                    header_mapping[header] = normalized
+                    break
+        
+        # Check if we have all required headers
+        if len(header_mapping) != len(expected_headers):
+            missing_headers = set(expected_headers.keys()) - set(header_mapping.keys())
+            raise ExcelParsingError(f"Missing required headers: {missing_headers}")
         
         valid_students = []
         skipped_rows = []
         
         for row in range(2, sheet.max_row + 1):
             try:
-                student = {
-                    "student_name": sheet.cell(row=row, column=1).value,
-                    "year": sheet.cell(row=row, column=2).value,
-                    "gender": sheet.cell(row=row, column=3).value,
-                    "adjectives": sheet.cell(row=row, column=4).value,
-                    "academic_performance": sheet.cell(row=row, column=5).value,
-                    "extracurricular_activities": sheet.cell(row=row, column=6).value,
-                    "other": sheet.cell(row=row, column=7).value,
-                    "sample_report": sheet.cell(row=row, column=8).value,
-                }
+                # Create student dictionary using the header mapping
+                student = {}
+                for col, header in enumerate(headers, 1):
+                    if header in header_mapping:
+                        student[header_mapping[header]] = sheet.cell(row=row, column=col).value
                 
                 # Skip empty rows
                 if all(value is None for value in student.values()):
