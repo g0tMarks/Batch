@@ -5,31 +5,31 @@
     - [x] 1.4 Verify that files are not publicly accessible
 
 - [x] 2.1 Add UI component for uploading Excel files (.xlsx)
-- [x] 2.2 Enforce file type restriction to `.xlsx`
-- [x] 2.3 Enforce file size restriction (e.g., max 10MB)
-- [x] 2.4 Validate and sanitize file names before upload
-- [x] 2.5 Restrict upload access to authenticated users
+    - [x] 2.2 Enforce file type restriction to `.xlsx`
+    - [x] 2.3 Enforce file size restriction (e.g., max 10MB)
+    - [x] 2.4 Validate and sanitize file names before upload
+    - [x] 2.5 Restrict upload access to authenticated users
 
-- [ ] Implement server-side upload API to Supabase Storage
-    - [ ] 3.1 Create API endpoint to receive file from UI
-    - [ ] 3.2 Upload received file to Supabase Storage under the correct bucket
-    - [ ] 3.3 Log upload event for traceability
+- [x] Implement server-side upload API to Supabase Storage
+    - [x] 3.1 Create API endpoint to receive file from UI
+    - [x] 3.2 Upload received file to Supabase Storage under the correct bucket
+    - [x] 3.3 Log upload event for traceability
 
-- [ ] Implement file processing logic
-    - [ ] 4.1 Download file from Supabase Storage to server (RAM or temp directory)
-    - [ ] 4.2 Parse Excel file and extract valid student data
-    - [ ] 4.3 Skip empty or incomplete rows during parsing
-    - [ ] 4.4 Generate AI prompts and process reports based on parsed data
-    - [ ] 4.5 Log processing start and end events
+- [x] Implement file processing logic
+    - [x] 4.1 Download file from Supabase Storage to server (RAM or temp directory)
+    - [x] 4.2 Parse Excel file and extract valid student data
+    - [x] 4.3 Skip empty or incomplete rows during parsing
+    - [x] 4.4 Generate AI prompts and process reports based on parsed data
+    - [x] 4.5 Log processing start and end events
 
 - [ ] Implement cleanup and deletion logic
-    - [ ] 5.1 Delete uploaded file from Supabase Storage after processing
-    - [ ] 5.2 Delete temporary files from server memory/disk post-processing
-    - [ ] 5.3 Log deletion event
-    - [ ] 5.4 Handle processing failures to avoid orphan files in storage
+    - [x] 5.1 Delete uploaded file from Supabase Storage after processing
+    - [x] 5.2 Delete temporary files from server memory/disk post-processing
+    - [x] 5.3 Log deletion event
+    - [x] 5.4 Handle processing failures to avoid orphan files in storage
 
 - [ ] Implement (optional) Supabase Storage lifecycle policy
-    - [ ] 6.1 Set up automatic deletion of files older than 24 hours in the bucket
+    - [x] 6.1 Set up automatic deletion of files older than 24 hours in the bucket
     - [ ] 6.2 Test lifecycle policy to ensure old files are deleted
 
 - [ ] Ensure system supports concurrent uploads and processing
