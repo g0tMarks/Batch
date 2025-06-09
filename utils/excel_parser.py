@@ -35,18 +35,9 @@ def validate_student_data(student: Dict[str, Any]) -> bool:
             logger.warning(f"Missing or empty required field '{field}' for student {student.get('student_name', 'unknown')}")
             return False
             
-    # Validate year is a number
-    try:
-        year = int(student['year'])
-        if year < 7 or year > 12:  # Assuming years 7-12
-            logger.warning(f"Invalid year {year} for student {student['student_name']}")
-            return False
-    except (ValueError, TypeError):
-        logger.warning(f"Year must be a number for student {student['student_name']}")
-        return False
         
     # Validate gender is one of the expected values
-    valid_genders = ['male', 'female', 'other']
+    valid_genders = ['male', 'female', 'other', 'm', 'f', 'o', 'M', 'F', 'O']
     if student['gender'].lower() not in valid_genders:
         logger.warning(f"Invalid gender '{student['gender']}' for student {student['student_name']}")
         return False

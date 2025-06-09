@@ -546,17 +546,21 @@ def list_reports():
             logger.debug(f"Output URL for upload {upload['id']}: {output_url}")
             
             # If we have a completed report with an output URL
-            if output_url:
-                filename = output_url.split('/')[-1]
-                logger.debug(f"Adding report with filename: {filename}")
-                reports.append({
-                    'id': upload['id'],
-                    'filename': filename,
-                    'created_at': upload['created_at'],
-                    'download_url': f"/download/{filename}"
-                })
+            if output_url and isinstance(output_url, str) and output_url.strip():
+                try:
+                    filename = output_url.split('/')[-1]
+                    logger.debug(f"Adding report with filename: {filename}")
+                    reports.append({
+                        'id': upload['id'],
+                        'filename': filename,
+                        'created_at': upload['created_at'],
+                        'download_url': f"/download/{filename}"
+                    })
+                except Exception as e:
+                    logger.warning(f"Error processing output URL for upload {upload['id']}: {str(e)}")
+                    continue
             else:
-                logger.debug(f"Skipping upload {upload['id']} - no output URL found")
+                logger.debug(f"Skipping upload {upload['id']} - no valid output URL found")
         
         logger.debug(f"Returning {len(reports)} reports")
         return jsonify(reports)
