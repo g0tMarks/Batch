@@ -144,10 +144,12 @@ class StorageService:
                 storage_path = f"templates/{filename}"
                 list_path = "templates"
             else:
-                storage_path = f"{user_id}/{filename}"
-                list_path = user_id
+                # For student reports, use the uploads bucket and reports subdirectory
+                bucket = "uploads"
+                storage_path = f"{user_id}/reports/{filename}"
+                list_path = f"{user_id}/reports"
             
-            logger.debug(f"Checking if file exists: {storage_path}")
+            logger.debug(f"Checking if file exists: {storage_path} in bucket {bucket}")
 
             # Check if file exists in storage
             try:
@@ -156,7 +158,7 @@ class StorageService:
                 if not any(f['name'] == filename for f in file_list):
                     raise StorageError(f"File {filename} not found in storage")
                 
-                logger.debug(f"File {filename} exists in storage")
+                logger.debug(f"File {filename} exists in storage at {storage_path}")
             except Exception as list_error:
                 logger.error(f"Error checking file existence: {str(list_error)}")
                 raise StorageError(f"Error checking file existence: {str(list_error)}")
