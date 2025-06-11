@@ -400,10 +400,12 @@ def generate_report():
                         # Continue with response even if cleanup fails
                     
                     logger.info(f"Report generation completed successfully for user {user_id}")
+                    output_filename = os.path.basename(output_file_path) if output_file_path else None
                     return jsonify({
                         'success': True,
                         'message': 'Reports generated successfully!',
-                        'output_url': output_url
+                        'filename': output_filename,
+                        'download_url': f"/download/reports/{output_filename}" if output_filename else None
                     })
                     
                 except Exception as process_error:
@@ -461,10 +463,11 @@ def generate_report():
 
     return asyncio.run(_generate())
 
-@app.route('/download/<filename>')
+@app.route('/download/<path:filename>')
 @login_required
 def download_file(filename):
-    """Download a report file from storage"""
+    """Download a report file from storage (supports subdirectories)"""
+    import os  # Ensure os is imported
     async def _download():
         try:
             # Get the user ID from the session
@@ -472,21 +475,15 @@ def download_file(filename):
             if not user_id:
                 return jsonify({"error": "User not authenticated"}), 401
 
-            # Get custom download path from query parameter if provided
-            custom_path = request.args.get('path')
-            if custom_path:
-                # Validate the custom path is within allowed directories
-                allowed_dirs = ['/tmp/reports', os.path.expanduser('~/Downloads')]
-                custom_path = os.path.abspath(custom_path)
-                if not any(custom_path.startswith(allowed_dir) for allowed_dir in allowed_dirs):
-                    return jsonify({"error": "Invalid download path"}), 400
+            # Always use only the base filename (no subdirectory)
+            base_filename = os.path.basename(filename)
 
-            # Download the file
+            # Download the file using the storage service (which uses uploads/<user_id>/reports/<filename>)
             try:
                 download_path = await storage_service.download_file(
-                    filename=filename,
-                    user_id=user_id,
-                    download_path=custom_path
+                    filename=base_filename,
+                    bucket="uploads",
+                    user_id=user_id
                 )
             except StorageError as e:
                 if "not found" in str(e):
@@ -502,14 +499,14 @@ def download_file(filename):
                 '.pdf': 'application/pdf',
                 '.txt': 'text/plain'
             }
-            file_ext = os.path.splitext(filename)[1].lower()
+            file_ext = os.path.splitext(base_filename)[1].lower()
             mime_type = mime_types.get(file_ext, 'application/octet-stream')
 
             # Send the file to the user with proper headers
             return send_file(
                 download_path,
                 as_attachment=True,
-                download_name=filename,
+                download_name=base_filename,
                 mimetype=mime_type
             )
 

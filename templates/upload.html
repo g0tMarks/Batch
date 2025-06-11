@@ -630,12 +630,15 @@
                 progressTracker.style.display = 'none';
                 statusMessage.textContent = 'Complete';
                 if (data.success) {
-                    // Use the filename directly from the response if available
-                    generatedFilename = data.filename || data.download_url.split('/').pop();
+                    if (data.filename) {
+                        generatedFilename = data.filename;
+                    } else if (data.download_url) {
+                        generatedFilename = data.download_url.split('/').pop();
+                    } else {
+                        throw new Error('No download link provided by the server.');
+                    }
                     console.log("Generated filename:", generatedFilename);
                     downloadContainer.style.display = 'block';
-                    
-                    // Check if actionButton exists before trying to access its style
                     if (actionButton) {
                         actionButton.style.display = 'none';
                     }
