@@ -11,6 +11,11 @@ logger = logging.getLogger(__name__)
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_ANON_KEY = os.environ["SUPABASE_ANON_KEY"]
 
+
+# Error logging
+if not SUPABASE_URL or not SUPABASE_ANON_KEY:
+    raise EnvironmentError("Supabase credentials not found.")
+
 # Try to get service role key for admin operations
 SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 

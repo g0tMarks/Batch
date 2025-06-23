@@ -13,16 +13,33 @@ from utils.usage import usage_service, UsageTrackingError
 import openpyxl.utils.exceptions
 from asgiref.wsgi import WsgiToAsgi
 import asyncio
+from rq import Queue
+from redis import Redis
+from tasks import generate_reports_task
+from dotenv import load_dotenv
 
-#create uploads directory on boot
-os.makedirs("uploads", exist_ok=True)
+# Load environment variables from .env file
+load_dotenv()
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+#create uploads directory on boot
+os.makedirs("uploads", exist_ok=True)
+
 # Global progress tracking
 progress_tracker = {}
+
+redis_url = os.getenv('REDIS_URL')
+if not redis_url:
+    logger.error("REDIS_URL environment variable not set. Falling back to localhost.")
+    redis_url = 'redis://localhost:6379'
+else:
+    logger.info("Successfully loaded REDIS_URL from environment.")
+
+redis_conn = Redis.from_url(redis_url)
+q = Queue(connection=redis_conn)
 
 def ensure_uploads_table():
     try:
@@ -276,192 +293,35 @@ class FileNotFoundError(Exception):
 @app.route("/generate", methods=["POST"])
 @login_required
 def generate_report():
-    async def _generate():
-        temp_file_path = None
-        output_file_path = None
-        try:
-            user_id = session.get('user')
-            logger.info(f"Starting report generation process for user {user_id}")
-            
-            # Initialize progress tracking
-            progress_tracker[user_id] = {
-                'current': 0,
-                'total': 0,
-                'status': 'Starting...',
-                'progress': 0
-            }
-            
-            # Get the latest uploaded file for the current user
-            logger.debug(f"Getting latest upload for user: {user_id}")
-            result = supabase.table('uploads').select('*').eq('user_id', user_id).order('created_at', desc=True).limit(1).execute()
-            
-            if not result.data:
-                logger.warning(f"No files found for user {user_id}")
-                return jsonify({
-                    'success': False,
-                    'message': 'No files found. Please upload an Excel file first.'
-                }), 400
-            
-            latest_upload = result.data[0]
-            storage_path = latest_upload['file_path']
-            upload_id = latest_upload['id']
-            
-            logger.info(f"Processing file {storage_path} (ID: {upload_id}) for user {user_id}")
-            
-            # Download file from Supabase Storage
-            try:
-                logger.info(f"Downloading file from storage: {storage_path}")
-                temp_file_path = await download_from_storage(storage_path, user_id)
-                logger.info(f"Successfully downloaded file to: {temp_file_path}")
-                
-                # Process the file
-                try:
-                    # Read student data
-                    logger.info("Starting to read student data from Excel file")
-                    student_data = read_student_data_from_excel(temp_file_path)
-                    if not student_data:
-                        logger.warning("No valid student data found in the file")
-                        # Update upload record with error
-                        supabase_admin.table('uploads').update({
-                            'status': 'error',
-                            'error_message': 'No valid student data found in the file'
-                        }).eq('id', upload_id).execute()
-                        return jsonify({
-                            'success': False,
-                            'message': 'No valid student data found in the file.'
-                        }), 400
-                    
-                    logger.info(f"Successfully read data for {len(student_data)} students")
-                    
-                    # Update progress tracking
-                    progress_tracker[user_id]['total'] = len(student_data)
-                    progress_tracker[user_id]['status'] = 'Processing students...'
-                    
-                    # Generate reports
-                    logger.info("Starting report generation process")
-                    report_service = ReportGenerationService()
-                    reports = await report_service.generate_reports_with_progress(
-                        student_data,
-                        user_id,
-                        progress_tracker
-                    )
-                    logger.info(f"Successfully generated {len(reports)} reports")
-                    
-                    # Create Word document
-                    logger.info("Creating Word document with generated reports")
-                    output_file_path = await report_service.create_word_doc(reports)
-                    logger.info(f"Successfully created Word document at: {output_file_path}")
-                    
-                    # Upload the generated report to Supabase Storage
-                    output_filename = os.path.basename(output_file_path)
-                    output_storage_path = f"{user_id}/reports/{output_filename}"
-                    logger.info(f"Uploading generated report to storage: {output_storage_path}")
-                    
-                    with open(output_file_path, 'rb') as f:
-                        supabase.storage.from_('uploads').upload(
-                            path=output_storage_path,
-                            file=f,
-                            file_options={"content-type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
-                        )
-                    
-                    # Get the public URL for the output file
-                    output_url = supabase.storage.from_('uploads').get_public_url(output_storage_path)
-                    logger.info(f"Generated report available at: {output_url}")
-                    
-                    # Update the upload record with the output file URL and success status
-                    logger.info(f"Updating upload record {upload_id} with output URL")
-                    supabase_admin.table('uploads').update({
-                        'output_file_url': output_url,
-                        'status': 'completed',
-                        'error_message': None
-                    }).eq('id', upload_id).execute()
-                    
-                    # Delete the original Excel file from storage
-                    try:
-                        logger.info(f"Starting deletion of original Excel file from storage: {storage_path}")
-                        await storage_service.delete_file(os.path.basename(storage_path), user_id=user_id)
-                        logger.info(f"Successfully deleted original Excel file from storage: {storage_path}")
-                    except Exception as delete_error:
-                        logger.warning(f"Failed to delete original Excel file {storage_path}: {str(delete_error)}", exc_info=True)
-                        # Continue with cleanup even if deletion fails
-                    
-                    # Clean up temporary files
-                    logger.info("Starting cleanup of temporary files")
-                    try:
-                        if os.path.exists(temp_file_path):
-                            os.remove(temp_file_path)
-                            logger.info(f"Successfully deleted temporary file: {temp_file_path}")
-                        if os.path.exists(output_file_path):
-                            os.remove(output_file_path)
-                            logger.info(f"Successfully deleted output file: {output_file_path}")
-                        logger.info("Successfully completed cleanup of all temporary files")
-                    except Exception as cleanup_error:
-                        logger.error(f"Error during temporary file cleanup: {str(cleanup_error)}", exc_info=True)
-                        # Continue with response even if cleanup fails
-                    
-                    logger.info(f"Report generation completed successfully for user {user_id}")
-                    output_filename = os.path.basename(output_file_path) if output_file_path else None
-                    return jsonify({
-                        'success': True,
-                        'message': 'Reports generated successfully!',
-                        'filename': output_filename,
-                        'download_url': f"/download/reports/{output_filename}" if output_filename else None
-                    })
-                    
-                except Exception as process_error:
-                    logger.error(f"Error processing file: {str(process_error)}", exc_info=True)
-                    # Update upload record with error information
-                    supabase_admin.table('uploads').update({
-                        'status': 'error',
-                        'error_message': str(process_error)
-                    }).eq('id', upload_id).execute()
-                    return jsonify({
-                        'success': False,
-                        'message': f'Error processing file: {str(process_error)}'
-                    }), 500
-                    
-            except Exception as download_error:
-                logger.error(f"Error downloading file: {str(download_error)}", exc_info=True)
-                # Update upload record with error information
-                supabase_admin.table('uploads').update({
-                    'status': 'error',
-                    'error_message': f'Error downloading file: {str(download_error)}'
-                }).eq('id', upload_id).execute()
-                return jsonify({
-                    'success': False,
-                    'message': f'Error downloading file: {str(download_error)}'
-                }), 500
-                
-        except Exception as e:
-            logger.error(f"Unexpected error in report generation: {str(e)}", exc_info=True)
-            # Update upload record with error information if we have an upload_id
-            if 'upload_id' in locals():
-                supabase_admin.table('uploads').update({
-                    'status': 'error',
-                    'error_message': f'Unexpected error: {str(e)}'
-                }).eq('id', upload_id).execute()
-            return jsonify({
-                'success': False,
-                'message': f'Unexpected error: {str(e)}'
-            }), 500
-            
-        finally:
-            # Ensure temporary files are cleaned up even if an error occurs
-            if temp_file_path and os.path.exists(temp_file_path):
-                try:
-                    os.remove(temp_file_path)
-                    logger.info(f"Cleaned up temporary file in finally block: {temp_file_path}")
-                except Exception as cleanup_error:
-                    logger.error(f"Error cleaning up temporary file in finally block: {str(cleanup_error)}", exc_info=True)
-            
-            if output_file_path and os.path.exists(output_file_path):
-                try:
-                    os.remove(output_file_path)
-                    logger.info(f"Cleaned up output file in finally block: {output_file_path}")
-                except Exception as cleanup_error:
-                    logger.error(f"Error cleaning up output file in finally block: {str(cleanup_error)}", exc_info=True)
+    user_id = session.get('user')
+    # Get the latest uploaded file for the current user
+    result = supabase.table('uploads').select('*').eq('user_id', user_id).order('created_at', desc=True).limit(1).execute()
+    if not result.data:
+        return jsonify({
+            'success': False,
+            'message': 'No files found. Please upload an Excel file first.'
+        }), 400
+    latest_upload = result.data[0]
+    storage_path = latest_upload['file_path']
+    upload_id = latest_upload['id']
+    # Download file from Supabase Storage
+    temp_file_path = asyncio.run(download_from_storage(storage_path, user_id))
+    # Enqueue the background job
+    job = q.enqueue(generate_reports_task, user_id, temp_file_path, upload_id, progress_tracker)
+    return jsonify({"job_id": job.get_id()})
 
-    return asyncio.run(_generate())
+@app.route("/job_status/<job_id>")
+@login_required
+def job_status(job_id):
+    from rq.job import Job
+    job = Job.fetch(job_id, connection=redis_conn)
+    if job.is_finished:
+        return jsonify(job.result)
+    elif job.is_failed:
+        return jsonify({"success": False, "message": "Job failed"}), 500
+    else:
+        # Optionally return progress from progress_tracker
+        return jsonify({"success": False, "message": "Job in progress"})
 
 @app.route('/download/<path:filename>')
 @login_required

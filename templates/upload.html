@@ -609,45 +609,21 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    // Try to parse the error response as JSON if possible
                     return response.json().catch(() => {
-                        // If it's not JSON, throw a generic error with status
                         throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
                     }).then(errorData => {
-                        // If we got JSON error data, throw with the error message
                         throw new Error(errorData.message || `Server error: ${response.status}`);
                     });
                 }
                 return response.json();
             })
             .then(data => {
-                clearInterval(processingInterval);
-                clearInterval(progressInterval);
-                progressBar.style.width = '100%';
-                // Set green background color directly via JavaScript to override any inline styles
-                progressBar.style.backgroundColor = '#28a745';
-                progressBar.classList.add('complete');
-                progressTracker.style.display = 'none';
-                statusMessage.textContent = 'Complete';
-                if (data.success) {
-                    if (data.filename) {
-                        generatedFilename = data.filename;
-                    } else if (data.download_url) {
-                        generatedFilename = data.download_url.split('/').pop();
-                    } else {
-                        throw new Error('No download link provided by the server.');
-                    }
-                    console.log("Generated filename:", generatedFilename);
-                    downloadContainer.style.display = 'block';
-                    if (actionButton) {
-                        actionButton.style.display = 'none';
-                    }
+                if (data.job_id) {
+                    // Start polling for job status
+                    pollJobStatus(data.job_id);
                 } else {
-                    throw new Error(data.message || 'Failed to generate report');
+                    throw new Error('No job ID received from server');
                 }
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                }, 3000);
             })
             .catch(error => {
                 clearInterval(processingInterval);
@@ -659,6 +635,58 @@
                 actionButton.disabled = false;
                 updateButton('generate');
             });
+        }
+
+        function pollJobStatus(jobId) {
+            const pollInterval = setInterval(() => {
+                fetch(`/job_status/${jobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === true) {
+                        // Job completed successfully
+                        clearInterval(pollInterval);
+                        clearInterval(processingInterval);
+                        clearInterval(progressInterval);
+                        progressBar.style.width = '100%';
+                        progressBar.style.backgroundColor = '#28a745';
+                        progressBar.classList.add('complete');
+                        progressTracker.style.display = 'none';
+                        statusMessage.textContent = 'Complete';
+                        
+                        if (data.filename) {
+                            generatedFilename = data.filename;
+                        } else if (data.download_url) {
+                            generatedFilename = data.download_url.split('/').pop();
+                        } else {
+                            throw new Error('No download link provided by the server.');
+                        }
+                        console.log("Generated filename:", generatedFilename);
+                        downloadContainer.style.display = 'block';
+                        if (actionButton) {
+                            actionButton.style.display = 'none';
+                        }
+                        setTimeout(() => {
+                            progressContainer.style.display = 'none';
+                        }, 3000);
+                    } else if (data.success === false && data.message === 'Job failed') {
+                        // Job failed
+                        clearInterval(pollInterval);
+                        clearInterval(processingInterval);
+                        clearInterval(progressInterval);
+                        progressBar.style.width = '100%';
+                        progressBar.style.backgroundColor = '#dc3545';
+                        progressTracker.style.display = 'none';
+                        statusMessage.textContent = 'Error: Job failed';
+                        actionButton.disabled = false;
+                        updateButton('generate');
+                    }
+                    // If job is still in progress, continue polling
+                })
+                .catch(error => {
+                    console.error('Error polling job status:', error);
+                    // Don't immediately fail on network errors - continue polling
+                });
+            }, 2000); // Poll every 2 seconds
         }
 
         function handleDownload() {
