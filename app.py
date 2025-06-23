@@ -48,6 +48,10 @@ def ensure_uploads_table():
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Generate a secure random key
 
+# Configure Flask timeout settings for long-running operations
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # 1 hour session lifetime
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for dynamic content
+
 # Ensure uploads table exists
 ensure_uploads_table()
 

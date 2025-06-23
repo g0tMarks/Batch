@@ -3,7 +3,7 @@ services:
     name: batch-report-app
     env: python
     buildCommand: ""
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --timeout 300 --workers 2 --worker-class sync --keep-alive 5 --max-requests 1000 --max-requests-jitter 100
     envVars:
       - key: SUPABASE_URL
         sync: false
