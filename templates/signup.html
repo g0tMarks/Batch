@@ -4,192 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <style>
-        @font-face {
-            font-family: 'Test Soehne Breit Fett';
-            src: url('/static/fonts/test-soehne-breit-fett.woff2') format('woff2'),
-                 url('/static/fonts/test-soehne-breit-fett.woff') format('woff');
-            font-weight: bold;
-            font-style: normal;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Test Soehne Breit Buch';
-            src: url('/static/fonts/test-soehne-breit-buch.woff2') format('woff2'),
-                 url('/static/fonts/test-soehne-breit-buch.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Test Soehne Breit Leicht';
-            src: url('/static/fonts/test-soehne-breit-leicht.woff2') format('woff2'),
-                 url('/static/fonts/test-soehne-breit-leicht.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-        html, body {
-            height: 100%;
-        }
-        body {
-            min-height: 100vh;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #faf7ef;
-        }
-        .navbar {
-            position: absolute;
-            top: 2rem;
-            left: 0;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .nav-btn {
-            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: none;
-            outline: none;
-            border-radius: 2rem;
-            padding: 0.7rem 2.2rem;
-            cursor: pointer;
-            background: #f3f1eb;
-            color: #000;
-            transition: background 0.2s, color 0.2s;
-            box-shadow: none;
-            text-decoration: none;
-        }
-        .nav-btn.active, .nav-btn:focus {
-            background: #000;
-            color: #fff;
-        }
-        .nav-btn:hover {
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-        }
-        .batch-link {
-            position: absolute;
-            top: 2rem;
-            left: 20rem;
-            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
-            font-size: 2rem;
-            color: #000;
-            text-decoration: none;
-            letter-spacing: 0.03em;
-            z-index: 20;
-            transition: color 0.2s;
-        }
-        .batch-link:hover {
-            color: #222;
-            transform: scale(1.3);
-            transition: transform 0.2s ease;
-        }
-        .signup-container {
-            max-width: 400px;
-            margin: 8rem auto 0 auto;
-            background: #fff;
-            padding: 2.5rem 2rem 2rem 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
-            border: 1px solid #ececec;
-            text-align: center;
-        }
-        .signup-title {
-            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 2rem;
-            font-weight: normal;
-            letter-spacing: 0.03em;
-            margin-bottom: 2.5rem;
-            color: #000;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            margin-bottom: 0.5rem;
-        }
-        .form-group label {
-            margin-bottom: 0.3rem;
-            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            padding: 0.8rem 1rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 0.5rem;
-            background: #fff;
-            color: #000;
-            outline: none;
-            transition: border 0.2s;
-        }
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            border: 1.5px solid #000;
-        }
-        .submit-btn {
-            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: none;
-            border-radius: 2rem;
-            padding: 0.8rem 2.2rem;
-            background: #000;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
-        }
-        .submit-btn:hover {
-            background: #222;
-        }
-        .error-message {
-            color: #dc3545;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-        @media (max-width: 600px) {
-            .navbar {
-                top: 1rem;
-            }
-            .batch-link {
-                font-size: 1.3rem;
-                left: 1.5rem;
-                top: 1rem;
-            }
-            .signup-container {
-                margin-top: 5rem;
-                padding: 1.5rem 0.5rem 1.5rem 0.5rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
     <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
         <div class="nav-buttons">
-            <a href="{{ url_for('index') }}" class="nav-btn">HOME</a>
-            <a href="{{ url_for('login') }}" class="nav-btn{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
+            {% if session.user %}
+                <a href="{{ url_for('download_template') }}" class="nav-btn{% if request.endpoint == 'download_template' %} active{% endif %}">DOWNLOAD</a>
+                <a href="{{ url_for('upload_page') }}" class="nav-btn{% if request.endpoint == 'upload_page' %} active{% endif %}">UPLOAD</a>
+                <a href="{{ url_for('view_reports') }}" class="nav-btn{% if request.endpoint == 'view_reports' %} active{% endif %}">REPORTS</a>
+                <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-btn{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
+                <a href="{{ url_for('signup') }}" class="nav-btn{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
+            {% endif %}
         </div>
     </nav>
     <div class="signup-container">
