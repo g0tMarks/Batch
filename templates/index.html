@@ -31,7 +31,6 @@
         <p class="subheadline">The most painful part of teaching outside of admin? Doing the same task 30 times - with slightly different output. </p>
     </div>
     
-    <div style="width:100vw; height:100vh; background:#faf7ef;"></div>
     <div class="body-content">
         <div class="text-section">
             <p>Writing reports is like baking 30 unique cookies—one at a time.</p>
@@ -39,9 +38,8 @@
             <span class="highlight">Not anymore.</span>
             
             <p>Batch is a tool that cuts your report-writing time in half—without sacrificing quality. Simply fill in a spreadsheet with student data and sample reports you have written in the past. Batch does the heavy lifting using AI to combine it all into well-crafted, personalised reports in your writing style.</p>
-
+            <a href="{{ url_for('signup') }}" class="try-it-free-btn">Try It Free</a>
         </div>
-        <a href="{{ url_for('signup') }}" class="try-it-free-btn">Try It Free</a>
         <div class="circles-container" id="circles-container">
             <div class="circle"></div>
             <div class="circle"></div>
@@ -124,7 +122,7 @@
         
         function animateCircles() {
             if (circleAnimationTriggered) return;
-            
+            console.log('Animating circles!');
             const circles = document.querySelectorAll('.circle');
             const delays = [300, 1800, 700, 3200, 1100, 4500, 2300, 900, 3800, 1500, 5100, 2700, 500, 4200, 1900, 3600, 800, 4800, 2100, 1300, 5400, 3000, 600, 4000, 2500, 1700, 5700, 3400, 1000, 4600];
             
@@ -165,22 +163,17 @@
             });
         }
         
-        function checkScroll() {
-            const circlesContainer = document.getElementById('circles-container');
-            const rect = circlesContainer.getBoundingClientRect();
-            const windowHeight = window.innerHeight;
-            
-            // Trigger animation when circles container is 50% visible
-            if (rect.top < windowHeight * 0.5 && rect.bottom > 0) {
-                animateCircles();
-            }
-        }
-        
-        // Add scroll event listener
-        window.addEventListener('scroll', checkScroll);
-        
-        // Check on page load in case user is already scrolled down
-        window.addEventListener('load', checkScroll);
+        // Intersection Observer to trigger circle animation
+        const bodyContent = document.querySelector('.body-content');
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCircles();
+                    observer.unobserve(entry.target); // Only trigger once
+                }
+            });
+        }, { threshold: 0.1 }); // Trigger when at least 10% is visible
+        observer.observe(bodyContent);
 
         // Background color transition on scroll
         function toggleBodyBackground() {
