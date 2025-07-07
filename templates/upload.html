@@ -277,6 +277,9 @@
             transform: scale(1.3);
             transition: transform 0.2s ease;
         }
+        .hidden {
+            display: none !important;
+        }
         .progress-container {
             width: 100%;
             margin: 0 auto;
@@ -323,7 +326,7 @@
             <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
         </div>
     </nav>
-    <a href="{{ url_for('index') }}" class="batch-link">BATCH</a>
+    <a href="{{ url_for('index') }}" class="batch-link hidden">BATCH</a>
     <div class="upload-card">
         <div class="upload-container">
              <!-- Progress Indicator <div class="upload-title" id="uploadTitle">Add file</div>-->
