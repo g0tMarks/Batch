@@ -1,0 +1,112 @@
+# Project Management Standards
+
+Standards for project management and documentation based on learnings from mobile navbar implementation.
+
+<rule>
+name: project_management
+description: Standards for project management and documentation
+filters:
+  - type: file_extension
+    pattern: "\\.(md|txt|yml|yaml)$"
+  - type: content
+    pattern: "(project|task|phase|documentation|readme)"
+
+actions:
+  - type: suggest
+    message: |
+      ## Project Management Standards
+
+      ### 1. Phased Implementation
+      - Break complex projects into manageable phases
+      - Each phase should build upon the previous
+      - Define clear acceptance criteria for each phase
+      - Test thoroughly before moving to the next phase
+
+      ### 2. Documentation Strategy
+      - Document during development, not after
+      - Maintain both technical and user-facing documentation
+      - Update documentation when code changes
+      - Include examples and code snippets
+
+      ### 3. Testing Approach
+      - Test each component individually
+      - Test across different devices and browsers
+      - Include accessibility testing
+      - Test complete user flows
+
+      ### 4. Progress Tracking
+      - Use clear task lists with checkboxes
+      - Track completion percentages
+      - Document blockers and solutions
+      - Maintain project status updates
+
+      ### 5. Quality Assurance
+      - Review code for consistency
+      - Ensure accessibility standards are met
+      - Test performance on mobile devices
+      - Validate cross-browser compatibility
+
+examples:
+  - input: |
+      # Bad: Vague project description
+      ## Mobile Navbar
+      - Update navbar for mobile
+      - Make it responsive
+
+      # Good: Detailed phased approach
+      ## Mobile Navbar Implementation
+      ### Phase 1: Analysis & Planning
+      - [ ] Audit current navbar structure across templates
+      - [ ] Document navigation requirements
+      - [ ] Plan responsive breakpoints
+      
+      ### Phase 2: HTML Structure Updates
+      - [ ] Standardize header structure across templates
+      - [ ] Add hamburger menu HTML
+      - [ ] Implement context-aware navigation
+    output: "Use detailed, phased project planning with clear tasks and acceptance criteria"
+
+  - input: |
+      # Bad: Minimal documentation
+      ## Setup
+      Run the app
+
+      # Good: Comprehensive documentation
+      ## Setup Instructions
+      1. Install Python dependencies: `pip install -r requirements.txt`
+      2. Configure database settings in `config.py`
+      3. Run the application: `python app.py`
+      4. Access the app at `http://localhost:5000`
+      
+      ## Testing
+      - Test mobile navigation on all templates
+      - Verify responsive breakpoints
+      - Check accessibility features
+    output: "Provide comprehensive setup and testing documentation"
+
+  - input: |
+      # Bad: No progress tracking
+      - Update navbar
+      - Add mobile menu
+      - Test
+
+      # Good: Detailed progress tracking
+      ## Progress Tracking
+      **Total Tasks:** 50
+      **Completed:** 25
+      **In Progress:** 5
+      **Remaining:** 20
+      
+      **Current Phase:** Phase 3 - CSS Integration
+      **Next Task:** Task 3.1 - Identify templates with inline styles
+    output: "Maintain detailed progress tracking with clear metrics and next steps"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["project-management", "documentation", "planning", "tracking"]
+</rule>
+description:
+globs:
+alwaysApply: false
+---

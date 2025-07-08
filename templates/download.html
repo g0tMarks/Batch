@@ -48,65 +48,7 @@
             background: #faf7ef;
             font-family: 'Test Soehne Breit Leicht', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        .navbar {
-            position: absolute;
-            top: 2rem;
-            left: 0;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .nav-btn {
-            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: none;
-            outline: none;
-            border-radius: 2rem;
-            padding: 0.7rem 2.2rem;
-            cursor: pointer;
-            background: #f3f1eb;
-            color: #000;
-            transition: background 0.2s, color 0.2s;
-            box-shadow: none;
-            text-decoration: none;
-        }
-        .nav-btn.active, .nav-btn:focus {
-            background: #000;
-            color: #fff;
-        }
-        .nav-btn:hover {
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-        }
-        .batch-link {
-            position: absolute;
-            top: 2rem;
-            left: 20rem;
-            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
-            font-size: 2rem;
-            color: #000;
-            text-decoration: none;
-            letter-spacing: 0.03em;
-            z-index: 20;
-            transition: color 0.2s;
-        }
-        .batch-link:hover {
-            color: #222;
-            transform: scale(1.3);
-            transition: transform 0.2s ease;
-        }
-        .hidden {
-            display: none !important;
-        }
+        /* Removed old navbar styles; now handled by external CSS */
         .download-card {
             max-width: 700px;
             margin: 8rem auto 0 auto;
@@ -274,11 +216,6 @@
                 padding: 2rem 1rem 1.5rem 1rem;
                 max-width: 95%;
             }
-            .batch-link {
-                font-size: 1.3rem;
-                left: 1rem;
-                top: 1rem;
-            }
             .download-title {
                 font-size: 1.6rem;
             }
@@ -301,28 +238,36 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-buttons">
-            <a href="{{ url_for('download_template') }}" class="nav-btn active">DOWNLOAD</a>
-            <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
-            <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
-            <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
-        </div>
-    </nav>
-    <a href="{{ url_for('index') }}" class="batch-link hidden">BATCH</a>
-    <!-- Mobile hamburger menu -->
-    <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-    </button>
-    <!-- Mobile dropdown menu -->
-    <div class="mobile-dropdown" id="mobile-dropdown">
-        <div class="dropdown-content">
-            <a href="{{ url_for('download_template') }}" class="dropdown-item active">DOWNLOAD</a>
-            <a href="{{ url_for('upload_page') }}" class="dropdown-item">UPLOAD</a>
-            <a href="{{ url_for('view_reports') }}" class="dropdown-item">REPORTS</a>
-            <a href="{{ url_for('logout') }}" class="dropdown-item">LOGOUT</a>
+    <div class="header-bar">
+        <a href="{{ url_for('index') }}" class="batch-link"><span class="logo-full">BATCH</span><span class="logo-mobile">B</span></a>
+        <div class="header-spacer"></div>
+        <nav class="navbar">
+            <div class="nav-buttons">
+                <a href="{{ url_for('download_template') }}" class="nav-btn active">DOWNLOAD</a>
+                <a href="{{ url_for('upload_page') }}" class="nav-btn">UPLOAD</a>
+                <a href="{{ url_for('view_reports') }}" class="nav-btn">REPORTS</a>
+                <a href="{{ url_for('logout') }}" class="nav-btn">LOGOUT</a>
+            </div>
+        </nav>
+        <!-- Mobile hamburger menu -->
+        <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <!-- Mobile dropdown menu -->
+        <div class="mobile-dropdown" id="mobile-dropdown">
+            <div class="dropdown-content">
+                {% if session.user %}
+                    <a href="{{ url_for('download_template') }}" class="dropdown-item{% if request.endpoint == 'download_template' %} active{% endif %}">DOWNLOAD</a>
+                    <a href="{{ url_for('upload_page') }}" class="dropdown-item{% if request.endpoint == 'upload_page' %} active{% endif %}">UPLOAD</a>
+                    <a href="{{ url_for('view_reports') }}" class="dropdown-item{% if request.endpoint == 'view_reports' %} active{% endif %}">REPORTS</a>
+                    <a href="{{ url_for('logout') }}" class="dropdown-item">LOGOUT</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="dropdown-item{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
+                    <a href="{{ url_for('signup') }}" class="dropdown-item{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
+                {% endif %}
+            </div>
         </div>
     </div>
     
@@ -442,6 +387,32 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Mobile hamburger menu functionality
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        const mobileDropdown = document.getElementById('mobile-dropdown');
+        
+        hamburgerMenu.addEventListener('click', function() {
+            mobileDropdown.classList.toggle('active');
+            hamburgerMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!hamburgerMenu.contains(event.target) && !mobileDropdown.contains(event.target)) {
+                mobileDropdown.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            }
+        });
+        
+        // Close menu when clicking on a dropdown item
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function() {
+                mobileDropdown.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            });
+        });
     </script>
 </body>
 </html>

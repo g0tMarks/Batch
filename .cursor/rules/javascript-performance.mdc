@@ -1,0 +1,95 @@
+# JavaScript Performance Standards
+
+Standards for JavaScript performance optimization based on learnings from mobile navbar implementation.
+
+<rule>
+name: javascript_performance
+description: Standards for JavaScript performance optimization
+filters:
+  - type: file_extension
+    pattern: "\\.(js|html)$"
+  - type: content
+    pattern: "(script|function|addEventListener|querySelector)"
+
+actions:
+  - type: suggest
+    message: |
+      ## JavaScript Performance Standards
+
+      ### 1. DOM Query Optimization
+      - Cache DOM queries in variables to avoid repeated lookups
+      - Use `querySelector` and `querySelectorAll` efficiently
+      - Minimize DOM traversal operations
+
+      ### 2. Event Handling
+      - Use event delegation for dynamic content
+      - Remove event listeners when components are destroyed
+      - Avoid attaching multiple listeners to the same element
+
+      ### 3. Mobile Performance
+      - Minimize JavaScript execution on mobile devices
+      - Use efficient animations (CSS transforms over JavaScript)
+      - Consider lazy loading for non-critical functionality
+
+      ### 4. Code Organization
+      - Keep JavaScript self-contained and modular
+      - Avoid global variable pollution
+      - Use consistent patterns across similar functionality
+
+      ### 5. Error Handling
+      - Implement proper error handling for dynamic operations
+      - Provide fallbacks for failed operations
+      - Log errors appropriately for debugging
+
+examples:
+  - input: |
+      // Bad: Repeated DOM queries
+      function toggleMenu() {
+        document.getElementById('menu').classList.toggle('active');
+        document.getElementById('menu').style.display = 'block';
+        document.getElementById('menu').focus();
+      }
+
+      // Good: Cached DOM queries
+      function toggleMenu() {
+        const menu = document.getElementById('menu');
+        menu.classList.toggle('active');
+        menu.style.display = 'block';
+        menu.focus();
+      }
+    output: "Cache DOM queries to improve performance"
+
+  - input: |
+      // Bad: Multiple event listeners
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', handleClick);
+      });
+
+      // Good: Event delegation
+      document.addEventListener('click', (e) => {
+        if (e.target.matches('.nav-item')) {
+          handleClick(e);
+        }
+      });
+    output: "Use event delegation for better performance with dynamic content"
+
+  - input: |
+      // Bad: Inline JavaScript in HTML
+      <button onclick="toggleMenu()">Menu</button>
+
+      // Good: External JavaScript
+      <button id="menu-toggle">Menu</button>
+      <script>
+        document.getElementById('menu-toggle').addEventListener('click', toggleMenu);
+      </script>
+    output: "Separate JavaScript from HTML for better maintainability"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["javascript", "performance", "dom", "events"]
+</rule>
+description:
+globs:
+alwaysApply: false
+---

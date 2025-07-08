@@ -40,65 +40,7 @@
             padding: 0;
             background: #faf7ef;
         }
-        .navbar {
-            position: absolute;
-            top: 2rem;
-            left: 0;
-            width: 100vw;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .nav-btn {
-            font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            font-weight: normal;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: none;
-            outline: none;
-            border-radius: 2rem;
-            padding: 0.7rem 2.2rem;
-            cursor: pointer;
-            background: #f3f1eb;
-            color: #000;
-            transition: background 0.2s, color 0.2s;
-            box-shadow: none;
-            text-decoration: none;
-        }
-        .nav-btn.active, .nav-btn:focus {
-            background: #000;
-            color: #fff;
-        }
-        .nav-btn:hover {
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-        }
-        .batch-link {
-            position: absolute;
-            top: 2rem;
-            left: 20rem;
-            font-family: 'Test Soehne Breit Fett', monospace, sans-serif;
-            font-size: 2rem;
-            color: #000;
-            text-decoration: none;
-            letter-spacing: 0.03em;
-            z-index: 20;
-            transition: color 0.2s;
-        }
-        .batch-link:hover {
-            color: #222;
-            transform: scale(1.3);
-            transition: transform 0.2s ease;
-        }
-        .hidden {
-            display: none !important;
-        }
+        /* Navbar styles now handled by external CSS */
         .login-container {
             max-width: 400px;
             margin: 8rem auto 0 auto;
@@ -171,14 +113,7 @@
             font-size: 1rem;
         }
         @media (max-width: 600px) {
-            .navbar {
-                top: 1rem;
-            }
-            .batch-link {
-                font-size: 1.3rem;
-                left: 1.5rem;
-                top: 1rem;
-            }
+            /* Mobile navbar styles now handled by external CSS */
             .login-container {
                 margin-top: 5rem;
                 padding: 1.5rem 0.5rem 1.5rem 0.5rem;
@@ -187,24 +122,27 @@
     </style>
 </head>
 <body>
-    <a href="{{ url_for('index') }}" class="batch-link hidden">BATCH</a>
-    <nav class="navbar">
-        <div class="nav-buttons">
-            <a href="{{ url_for('index') }}" class="nav-btn">HOME</a>
-            <a href="{{ url_for('signup') }}" class="nav-btn{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
-        </div>
-    </nav>
-    <!-- Mobile hamburger menu -->
-    <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-    </button>
-    <!-- Mobile dropdown menu -->
-    <div class="mobile-dropdown" id="mobile-dropdown">
-        <div class="dropdown-content">
-            <a href="{{ url_for('index') }}" class="dropdown-item">HOME</a>
-            <a href="{{ url_for('signup') }}" class="dropdown-item{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
+    <div class="header-bar">
+        <a href="{{ url_for('index') }}" class="batch-link"><span class="logo-full">BATCH</span><span class="logo-mobile">B</span></a>
+        <div class="header-spacer"></div>
+        <nav class="navbar">
+            <div class="nav-buttons">
+                <a href="{{ url_for('index') }}" class="nav-btn">HOME</a>
+                <a href="{{ url_for('signup') }}" class="nav-btn{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
+            </div>
+        </nav>
+        <!-- Mobile hamburger menu -->
+        <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <!-- Mobile dropdown menu -->
+        <div class="mobile-dropdown" id="mobile-dropdown">
+            <div class="dropdown-content">
+                <a href="{{ url_for('index') }}" class="dropdown-item">HOME</a>
+                <a href="{{ url_for('signup') }}" class="dropdown-item{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
+            </div>
         </div>
     </div>
     <div class="login-container">
@@ -224,5 +162,33 @@
             <button type="submit" class="submit-btn">Login</button>
         </form>
     </div>
+
+    <script>
+        // Mobile hamburger menu functionality
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        const mobileDropdown = document.getElementById('mobile-dropdown');
+        
+        hamburgerMenu.addEventListener('click', function() {
+            mobileDropdown.classList.toggle('active');
+            hamburgerMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!hamburgerMenu.contains(event.target) && !mobileDropdown.contains(event.target)) {
+                mobileDropdown.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            }
+        });
+        
+        // Close menu when clicking on a dropdown item
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function() {
+                mobileDropdown.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>

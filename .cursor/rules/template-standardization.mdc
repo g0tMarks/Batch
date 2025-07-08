@@ -1,0 +1,111 @@
+# Template Standardization Standards
+
+Standards for template standardization and consistency based on learnings from mobile navbar implementation.
+
+<rule>
+name: template_standardization
+description: Standards for template standardization and consistency
+filters:
+  - type: file_extension
+    pattern: "\\.(html|jinja|template)$"
+  - type: content
+    pattern: "(template|jinja|html|header|nav)"
+
+actions:
+  - type: suggest
+    message: |
+      ## Template Standardization Standards
+
+      ### 1. Consistent Structure
+      - Use identical HTML structure for shared components across templates
+      - Maintain consistent class naming conventions
+      - Follow the same pattern for similar functionality
+
+      ### 2. Context-Aware Navigation
+      - Implement dynamic navigation based on user state
+      - Use Jinja logic to show appropriate navigation items
+      - Highlight active page in navigation
+
+      ### 3. Component Reusability
+      - Extract shared components to avoid duplication
+      - Use consistent patterns for similar UI elements
+      - Maintain template-specific styling where appropriate
+
+      ### 4. Template-Specific Considerations
+      - Preserve unique functionality while standardizing shared elements
+      - Ensure template-specific JavaScript doesn't conflict with shared components
+      - Maintain individual template aesthetics and branding
+
+      ### 5. Documentation
+      - Document template-specific requirements and considerations
+      - Maintain clear separation between shared and unique components
+      - Update documentation when templates are modified
+
+examples:
+  - input: |
+      <!-- Bad: Inconsistent structure across templates -->
+      <!-- Template 1 -->
+      <div class="navbar">
+        <a href="/" class="logo">Logo</a>
+        <div class="nav-links">...</div>
+      </div>
+
+      <!-- Template 2 -->
+      <header class="header">
+        <span class="brand">Logo</span>
+        <nav class="navigation">...</nav>
+      </header>
+
+      <!-- Good: Consistent structure -->
+      <!-- Template 1 & 2 -->
+      <div class="header-bar">
+        <a href="/" class="batch-link">Logo</a>
+        <nav class="navbar">...</nav>
+      </div>
+    output: "Use consistent HTML structure for shared components across templates"
+
+  - input: |
+      <!-- Bad: Hardcoded navigation -->
+      <nav class="navbar">
+        <a href="/login">LOGIN</a>
+        <a href="/signup">SIGN UP</a>
+      </nav>
+
+      <!-- Good: Context-aware navigation -->
+      <nav class="navbar">
+        {% if session.user %}
+          <a href="/download">DOWNLOAD</a>
+          <a href="/upload">UPLOAD</a>
+          <a href="/logout">LOGOUT</a>
+        {% else %}
+          <a href="/login">LOGIN</a>
+          <a href="/signup">SIGN UP</a>
+        {% endif %}
+      </nav>
+    output: "Implement context-aware navigation using Jinja logic"
+
+  - input: |
+      <!-- Bad: Template-specific styling mixed with shared components -->
+      <div class="header-bar" style="background: red; padding: 20px;">
+        <a href="/" class="logo">Logo</a>
+      </div>
+
+      <!-- Good: Separated concerns -->
+      <div class="header-bar">
+        <a href="/" class="logo">Logo</a>
+      </div>
+      <style>
+        /* Template-specific styles */
+        .header-bar { background: red; padding: 20px; }
+      </style>
+    output: "Separate shared components from template-specific styling"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["template", "standardization", "consistency", "jinja"]
+</rule>
+description:
+globs:
+alwaysApply: false
+---
