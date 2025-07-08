@@ -457,7 +457,7 @@ body {
         display: none !important;
     }
     .logo-full { display: none !important; }
-    .logo-mobile { display: inline !important; }
+    .logo-mobile { display: inline !important; font-size: 2rem !important; }
     #typewriter-text {
         font-size: 12vw;
     }
@@ -465,6 +465,20 @@ body {
 @media (min-width: 601px) {
     .logo-full { display: inline !important; }
     .logo-mobile { display: none !important; }
+    
+    /* Hide mobile hamburger menu on desktop */
+    .hamburger-menu {
+        display: none;
+    }
+    
+    .mobile-dropdown {
+        display: none;
+    }
+    
+    /* Show desktop navbar */
+    .navbar {
+        display: flex;
+    }
 }
 /* === End index.html styles migration === */
 
@@ -520,23 +534,250 @@ body.dark-bg {
     padding: 0.7rem 0.7rem 0 0.7rem;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between !important;
     width: 100vw;
     max-width: 100vw;
     box-sizing: border-box;
     gap: 1.2rem;
+    min-width: 0;
   }
   .batch-link {
-    font-size: 2.1rem;
+    font-size: 1.7rem;
     margin: 0;
     padding: 0;
     position: static;
     left: unset;
     top: unset;
     line-height: 1;
+    flex-shrink: 1;
+    max-width: 60vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .nav-buttons {
-    gap: 0.5rem;
+  .header-spacer {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .hamburger-menu {
     margin-left: 0.5rem;
+  }
+  /* Mobile nav-buttons are hidden, using dropdown instead */
+  
+  /* Mobile hamburger menu styles */
+  .hamburger-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 30;
+    position: relative;
+  }
+  
+  .hamburger-line {
+    width: 100%;
+    height: 3px;
+    background-color: #000;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger-menu.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+  }
+  
+  .hamburger-menu.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .hamburger-menu.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+  
+  /* Mobile dropdown menu */
+  .mobile-dropdown {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 250px;
+    height: 100vh;
+    background: #faf7ef;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 25;
+    padding-top: 80px;
+  }
+  
+  /* Backdrop overlay when menu is open */
+  .mobile-dropdown.active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+  }
+  
+  .mobile-dropdown.active {
+    right: 0;
+  }
+  
+  .dropdown-content {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .dropdown-item {
+    font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: #000;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+  }
+  
+  .dropdown-item:hover,
+  .dropdown-item.active {
+    background: #000;
+    color: #fff;
+  }
+  
+  /* Hide desktop nav on mobile */
+  .navbar {
+    display: none;
+  }
+  
+  /* Show full logo on mobile */
+  .logo-full {
+    display: inline !important;
+  }
+  
+  .logo-mobile {
+    display: none !important;
+  }
+  
+  /* Mobile hamburger menu styles for all templates */
+  .hamburger-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 30;
+    position: relative;
+  }
+  
+  .hamburger-line {
+    width: 100%;
+    height: 3px;
+    background-color: #000;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger-menu.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+  }
+  
+  .hamburger-menu.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .hamburger-menu.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+  
+  /* Mobile dropdown menu for all templates */
+  .mobile-dropdown {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 250px;
+    height: 100vh;
+    background: #faf7ef;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    z-index: 25;
+    padding-top: 80px;
+  }
+  
+  .mobile-dropdown.active {
+    right: 0;
+  }
+  
+  .dropdown-content {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .dropdown-item {
+    font-family: 'Test Soehne Breit Buch', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    color: #000;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+  }
+  
+  .dropdown-item:hover,
+  .dropdown-item.active {
+    background: #000;
+    color: #fff;
+  }
+  
+  /* Backdrop overlay when menu is open */
+  .mobile-dropdown.active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+  }
+  
+  /* Hide desktop nav on mobile for all templates */
+  .navbar {
+    display: none;
+  }
+  
+  /* Show full logo on mobile for all templates */
+  .logo-full {
+    display: inline !important;
+  }
+  
+  .logo-mobile {
+    display: none !important;
+  }
+  
+  /* Make hidden batch-link visible on mobile */
+  .batch-link.hidden {
+    display: inline !important;
   }
 }

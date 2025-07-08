@@ -1,0 +1,84 @@
+# Mobile Responsive Design Standards
+
+Standards for implementing mobile-responsive design patterns based on learnings from mobile navbar implementation.
+
+<rule>
+name: mobile_responsive_design
+description: Standards for mobile-responsive design implementation
+filters:
+  - type: file_extension
+    pattern: "\\.(html|css|js)$"
+  - type: content
+    pattern: "(navbar|navigation|header|mobile|responsive)"
+
+actions:
+  - type: suggest
+    message: |
+      ## Mobile Responsive Design Standards
+
+      ### 1. Mobile-First Approach
+      - Start with mobile design (≤600px) and scale up to desktop
+      - Use progressive enhancement for desktop features
+      - Test on actual mobile devices, not just browser dev tools
+
+      ### 2. Breakpoint Strategy
+      ```css
+      /* Mobile-first approach */
+      .component { /* Mobile styles */ }
+      
+      @media (min-width: 600px) {
+        .component { /* Desktop styles */ }
+      }
+      ```
+
+      ### 3. Touch-Friendly Design
+      - Minimum touch target size: 44px × 44px
+      - Adequate spacing between interactive elements
+      - Consider thumb reach zones for mobile navigation
+
+      ### 4. Navigation Patterns
+      - Use hamburger menu for mobile navigation (≤600px)
+      - Maintain traditional navbar for desktop (≥600px)
+      - Ensure navigation is context-aware (logged-in vs logged-out)
+
+      ### 5. Performance Considerations
+      - Minimize CSS and JavaScript for mobile
+      - Use efficient animations (CSS transforms over layout changes)
+      - Optimize images and assets for mobile bandwidth
+
+examples:
+  - input: |
+      /* Bad: Desktop-first approach */
+      .navbar { display: flex; }
+      @media (max-width: 600px) {
+        .navbar { display: none; }
+      }
+
+      /* Good: Mobile-first approach */
+      .navbar { display: none; }
+      @media (min-width: 600px) {
+        .navbar { display: flex; }
+      }
+    output: "Use mobile-first responsive design approach"
+
+  - input: |
+      /* Bad: Small touch targets */
+      .nav-item { padding: 5px; }
+
+      /* Good: Touch-friendly targets */
+      .nav-item { 
+        padding: 12px 16px;
+        min-height: 44px;
+        min-width: 44px;
+      }
+    output: "Ensure touch targets meet minimum 44px size requirement"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["mobile", "responsive", "design", "ux"]
+</rule>
+description:
+globs:
+alwaysApply: false
+---

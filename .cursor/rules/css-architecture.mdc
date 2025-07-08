@@ -1,0 +1,102 @@
+# CSS Architecture Standards
+
+Standards for CSS architecture and organization based on learnings from mobile navbar implementation.
+
+<rule>
+name: css_architecture
+description: Standards for CSS architecture and organization
+filters:
+  - type: file_extension
+    pattern: "\\.(css|html)$"
+  - type: content
+    pattern: "(style|css|class|stylesheet)"
+
+actions:
+  - type: suggest
+    message: |
+      ## CSS Architecture Standards
+
+      ### 1. Centralized vs Inline Styles
+      - Centralize shared components (navigation, buttons, forms) in external CSS
+      - Use inline styles only for template-specific, non-reusable styles
+      - Maintain consistent class naming conventions across templates
+
+      ### 2. Component Organization
+      ```css
+      /* Group related styles together */
+      /* Header/Navigation */
+      .header-bar { }
+      .hamburger-menu { }
+      .mobile-dropdown { }
+      
+      /* Forms */
+      .form-group { }
+      .form-input { }
+      
+      /* Buttons */
+      .btn { }
+      .btn-primary { }
+      ```
+
+      ### 3. Responsive Design Patterns
+      - Use mobile-first media queries
+      - Keep responsive styles close to their base styles
+      - Use consistent breakpoints across the application
+
+      ### 4. Performance Optimization
+      - Minimize CSS file size for mobile
+      - Use efficient selectors (avoid deep nesting)
+      - Leverage CSS transforms for animations
+
+      ### 5. Maintainability
+      - Use descriptive class names
+      - Comment complex CSS rules
+      - Group related styles logically
+      - Avoid !important unless absolutely necessary
+
+examples:
+  - input: |
+      <!-- Bad: Inline styles for shared components -->
+      <nav style="display: flex; justify-content: space-between; padding: 1rem;">
+        <div style="font-size: 1.5rem; font-weight: bold;">Logo</div>
+        <button style="padding: 0.5rem 1rem; border: none;">Menu</button>
+      </nav>
+
+      <!-- Good: External CSS classes -->
+      <nav class="header-bar">
+        <div class="logo">Logo</div>
+        <button class="hamburger-menu">Menu</button>
+      </nav>
+    output: "Use external CSS classes for shared components instead of inline styles"
+
+  - input: |
+      /* Bad: Deep nesting and inefficient selectors */
+      .header .nav .menu .item .link { color: blue; }
+
+      /* Good: Flat, efficient selectors */
+      .nav-link { color: blue; }
+    output: "Use flat, efficient CSS selectors to improve performance"
+
+  - input: |
+      /* Bad: Desktop-first approach */
+      .component { display: flex; }
+      @media (max-width: 600px) {
+        .component { display: block; }
+      }
+
+      /* Good: Mobile-first approach */
+      .component { display: block; }
+      @media (min-width: 600px) {
+        .component { display: flex; }
+      }
+    output: "Use mobile-first responsive design approach"
+
+metadata:
+  priority: high
+  version: 1.0
+  tags: ["css", "architecture", "performance", "maintainability"]
+</rule>
+description:
+globs:
+alwaysApply: false
+---

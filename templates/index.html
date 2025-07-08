@@ -24,6 +24,26 @@
                 {% endif %}
             </div>
         </nav>
+        <!-- Mobile hamburger menu -->
+        <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <!-- Mobile dropdown menu -->
+        <div class="mobile-dropdown" id="mobile-dropdown">
+            <div class="dropdown-content">
+                {% if session.user %}
+                    <a href="{{ url_for('download_template') }}" class="dropdown-item{% if request.endpoint == 'download_template' %} active{% endif %}">DOWNLOAD</a>
+                    <a href="{{ url_for('upload_page') }}" class="dropdown-item{% if request.endpoint == 'upload_page' %} active{% endif %}">UPLOAD</a>
+                    <a href="{{ url_for('view_reports') }}" class="dropdown-item{% if request.endpoint == 'view_reports' %} active{% endif %}">REPORTS</a>
+                    <a href="{{ url_for('logout') }}" class="dropdown-item">LOGOUT</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="dropdown-item{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
+                    <a href="{{ url_for('signup') }}" class="dropdown-item{% if request.endpoint == 'signup' %} active{% endif %}">SIGN UP</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
     <div class="centerpiece">
         <h1>Student reports</h1>
@@ -189,6 +209,32 @@
         }
         window.addEventListener('scroll', toggleBodyBackground);
         window.addEventListener('load', toggleBodyBackground);
+
+        // Mobile hamburger menu functionality
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        const mobileDropdown = document.getElementById('mobile-dropdown');
+        
+        hamburgerMenu.addEventListener('click', function() {
+            mobileDropdown.classList.toggle('active');
+            hamburgerMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!hamburgerMenu.contains(event.target) && !mobileDropdown.contains(event.target)) {
+                mobileDropdown.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            }
+        });
+        
+        // Close menu when clicking on a dropdown item
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function() {
+                mobileDropdown.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            });
+        });
     </script>
 </body>
 </html>
