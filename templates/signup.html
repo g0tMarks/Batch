@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         @font-face {
             font-family: 'Test Soehne Breit Fett';
@@ -195,6 +196,19 @@
             <a href="{{ url_for('login') }}" class="nav-btn{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
         </div>
     </nav>
+    <!-- Mobile hamburger menu -->
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+    </button>
+    <!-- Mobile dropdown menu -->
+    <div class="mobile-dropdown" id="mobile-dropdown">
+        <div class="dropdown-content">
+            <a href="{{ url_for('index') }}" class="dropdown-item">HOME</a>
+            <a href="{{ url_for('login') }}" class="dropdown-item{% if request.endpoint == 'login' %} active{% endif %}">LOGIN</a>
+        </div>
+    </div>
     <div class="signup-container">
         <div class="signup-title">Sign up for Batch</div>
         {% if error %}

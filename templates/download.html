@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BATCH - Download Template</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         @font-face {
             font-family: 'Test Soehne Breit Fett';
@@ -309,6 +310,21 @@
         </div>
     </nav>
     <a href="{{ url_for('index') }}" class="batch-link hidden">BATCH</a>
+    <!-- Mobile hamburger menu -->
+    <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+    </button>
+    <!-- Mobile dropdown menu -->
+    <div class="mobile-dropdown" id="mobile-dropdown">
+        <div class="dropdown-content">
+            <a href="{{ url_for('download_template') }}" class="dropdown-item active">DOWNLOAD</a>
+            <a href="{{ url_for('upload_page') }}" class="dropdown-item">UPLOAD</a>
+            <a href="{{ url_for('view_reports') }}" class="dropdown-item">REPORTS</a>
+            <a href="{{ url_for('logout') }}" class="dropdown-item">LOGOUT</a>
+        </div>
+    </div>
     
     <div class="download-card">
         <div class="download-title">Download Template</div>
