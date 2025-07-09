@@ -179,7 +179,6 @@ All templates feature consistent mobile navigation:
 - Test on both mobile and desktop after changes
 - Maintain accessibility features
 
-## Development
 
 ### Setup
 1. Install Python dependencies: `pip install -r requirements.txt`
