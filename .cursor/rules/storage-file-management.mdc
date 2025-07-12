@@ -1,0 +1,97 @@
+# Storage and File Management Rules
+
+<rule>
+name: storage_file_management
+description: Standards for storage and file management operations
+filters:
+  # Match storage-related files
+  - type: file_extension
+    pattern: "\\.(py|js|ts|java|go)$"
+  # Match storage operations
+  - type: content
+    pattern: "(upload|download|storage|bucket|file)"
+  # Match file operations
+  - type: content
+    pattern: "(open|read|write|save|delete)"
+
+actions:
+  - type: suggest
+    message: |
+      Storage and File Management Best Practices:
+
+      ## Path Consistency
+      - Always match upload and download paths exactly
+      - If files are uploaded to `{user_id}/reports/{filename}`, download from the same path
+      - Document path structures in code comments for clarity
+
+      ## Bucket Specification
+      - Explicitly specify buckets for different file types
+      - Use "uploads" for user files, "documents" for templates
+      - Never assume default bucket names
+
+      ## Null Safety
+      - Validate data before operations
+      - Check if values exist, are strings, and aren't empty before calling methods
+      - Use `isinstance(value, str) and value.strip()` for string validation
+
+      ## Error Handling
+      - Wrap file operations in try-catch blocks
+      - Provide meaningful error messages with context
+      - Log specific error details for debugging
+
+      ## Logging Strategy
+      - Use debug logs for file operations
+      - Track file paths, bucket names, and operation steps
+      - Include user IDs and file names in log messages
+
+      ## File Type Validation
+      - Validate extensions and MIME types on upload and download
+      - Maintain whitelist of allowed file types
+      - Check both client and server-side validation
+
+      ## Cleanup Management
+      - Always clean up temporary files in finally blocks
+      - Clean up even if operations fail
+      - Use try-finally patterns for file operations
+
+      ## User Isolation
+      - Store files in user-specific directories
+      - Use `{user_id}/` prefix for all user files
+      - Prevent cross-user access through path isolation
+
+      ## Async Operations
+      - Use proper async/await patterns for storage operations
+      - Avoid blocking operations in async contexts
+      - Handle async errors appropriately
+
+      ## Database Sync
+      - Keep database records updated with file URLs and status
+      - Maintain consistency between storage and metadata
+      - Update status fields (completed, error, etc.) appropriately
+
+examples:
+  - input: |
+      # Bad: Inconsistent paths
+      upload_path = f"{user_id}/reports/{filename}"
+      download_path = f"{user_id}/{filename}"  # Wrong!
+
+      # Good: Consistent paths
+      upload_path = f"{user_id}/reports/{filename}"
+      download_path = f"{user_id}/reports/{filename}"  # Correct!
+
+    output: "Use consistent paths for upload and download operations"
+
+  - input: |
+      # Bad: No null safety
+      filename = output_url.split('/')[-1]
+
+      # Good: With null safety
+      if output_url and isinstance(output_url, str) and output_url.strip():
+          filename = output_url.split('/')[-1]
+
+    output: "Always validate data before operations"
+
+metadata:
+  priority: high
+  version: 1.0
+---
