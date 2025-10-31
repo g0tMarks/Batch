@@ -68,11 +68,8 @@ def read_student_data_from_excel(file_path: str, sheet_name: str = "Sheet1") -> 
         sheet = workbook[sheet_name]
         
         # Define expected headers in both formats
-        # Note: Both 'Student Name'/'student_name' and 'Student Number'/'student_number' map to 'student_name'
-        # Matching is case-insensitive, so all variations are handled
         expected_headers = {
             'Student Name': 'student_name',
-            'Student Number': 'student_name',  # Accept student_number as alternative
             'Year': 'year',
             'Gender': 'gender',
             'Adjectives': 'adjectives',
@@ -87,27 +84,17 @@ def read_student_data_from_excel(file_path: str, sheet_name: str = "Sheet1") -> 
         
         # Create a mapping of actual headers to expected format
         header_mapping = {}
-        required_normalized_fields = {'student_name', 'year', 'gender', 'adjectives', 
-                                     'academic_performance', 'extracurricular_activities', 
-                                     'other', 'sample_report'}
-        
         for header in headers:
-            # Try to match the header in either format (case-insensitive)
+            # Try to match the header in either format
             for expected, normalized in expected_headers.items():
-                # Match against both the expected header and the normalized value
-                # This handles 'Student Name', 'student_name', 'Student Number', 'student_number', etc.
                 if header.lower() == expected.lower() or header.lower() == normalized.lower():
-                    # Only add if we don't already have this normalized field
-                    # (to handle cases where both 'Student Name' and 'Student Number' are present)
-                    if normalized not in {v for v in header_mapping.values()}:
-                        header_mapping[header] = normalized
+                    header_mapping[header] = normalized
                     break
         
-        # Check if we have all required normalized fields
-        mapped_normalized_fields = set(header_mapping.values())
-        if mapped_normalized_fields != required_normalized_fields:
-            missing_fields = required_normalized_fields - mapped_normalized_fields
-            raise ExcelParsingError(f"Missing required headers. Missing: {missing_fields}")
+        # Check if we have all required headers
+        if len(header_mapping) != len(expected_headers):
+            missing_headers = set(expected_headers.keys()) - set(header_mapping.keys())
+            raise ExcelParsingError(f"Missing required headers: {missing_headers}")
         
         valid_students = []
         skipped_rows = []
